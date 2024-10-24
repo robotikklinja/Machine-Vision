@@ -5,6 +5,7 @@ Prosjektet er få en robot-arm til å gjenkjenne kort eller brikker og hvor den 
 Det er for å promotere robotikk ved å vise ting som robotarmen kan gjøre
 
 ## Prosjekt plan
+
 ###Kartlegging:
 Samle utstyr og ressurser:
 	####Utstyr: UR-robot, sugekopp
