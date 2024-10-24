@@ -6,13 +6,13 @@ Det er for å promotere robotikk ved å vise ting som robotarmen kan gjøre
 
 ## Prosjekt plan
 
-###Kartlegging:
+Kartlegging:
 Samle utstyr og ressurser:
-	####Utstyr: UR-robot, sugekopp
-	####Ressurser: 
+	Utstyr: UR-robot, sugekopp
+	essurser: 
 		https://victorzhou.com/blog/intro-to-neural-networks/
 		https://victorzhou.com/series/neural-networks-from-scratch/
-###Tidsplan:
+Tidsplan:
 	Lages etter å ha funnet utstyr og ressurser.
   
 ## Steg for å fullføre prosjektet:
