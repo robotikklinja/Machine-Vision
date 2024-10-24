@@ -1,4 +1,4 @@
-# # Machine vision
+# Machine vision
 Prosjektet er få en robot-arm til å gjenkjenne kort eller brikker og hvor den skal plukke de opp, så få den til å spille ting som kort eller kanskje sortere ting. Så skal den bruke en Neural Network til å ta de beste valgene i en gitt situasjon
 
 # Hvorfor:
