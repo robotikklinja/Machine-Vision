@@ -1,3 +1,3 @@
-# test_project
+# project
  
 Hvordan koder man dette
