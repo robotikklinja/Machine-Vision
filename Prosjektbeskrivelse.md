@@ -8,14 +8,16 @@ Det er for å promotere robotikk ved å vise ting som robotarmen kan gjøre.
 Kartlegging:
 Samle utstyr og ressurser:
 
-Utstyr: UR-robot, sugekopp
+Utstyr: UR-robot, sugekopp, kamera (kan være laptopen sin eller en kamera som kobles til en USB-port)
 
 Ressurser: 
 	https://victorzhou.com/blog/intro-to-neural-networks/
 	https://victorzhou.com/series/neural-networks-from-scratch/
-
+	https://www.youtube.com/watch?v=oXlwWbU8l2o
+ 
 Tidsplan:
 	Lages etter å ha funnet utstyr og ressurser.
   
 ## Steg for å fullføre prosjektet:
-Få et kamera som kan gjenkjenne det den må gjenkjenne
+1. Lære OpenCV
+2. Kunne lage en kode som kan gjenkjenne kortene, hvor de skal 
