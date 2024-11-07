@@ -12,7 +12,9 @@ Utstyr: UR-robot, sugekopp, kamera (kan være laptopen sin eller en kamera som k
 
 Ressurser: 
 	https://victorzhou.com/blog/intro-to-neural-networks/
+ 
 	https://victorzhou.com/series/neural-networks-from-scratch/
+ 
 	https://www.youtube.com/watch?v=oXlwWbU8l2o
  
 Tidsplan:
