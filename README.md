@@ -4,7 +4,7 @@ Prosjektet er få en robot-arm til å gjenkjenne kort eller brikker og hvor den 
 ## Hvorfor:
 Det er for å promotere robotikk ved å vise ting som robotarmen kan gjøre.
 
-## Prosjekt plan
+## Prosjekt plan:
 Kartlegging:
 Samle utstyr og ressurser:
 
