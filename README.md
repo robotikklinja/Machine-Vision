@@ -10,7 +10,8 @@ Samle utstyr og ressurser:
 
 Utstyr: UR-robot, sugekopp, kamera (kan være laptopen sin eller en kamera som kobles til en USB-port)
 
-Ressurser: 
+Ressurser:
+
 	https://victorzhou.com/blog/intro-to-neural-networks/
  
 	https://victorzhou.com/series/neural-networks-from-scratch/
