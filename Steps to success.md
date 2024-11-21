@@ -1,5 +1,5 @@
 ## Step 1
-  Learn OpenCV and contours (Done...?)
+  Learn OpenCV (Done...?)
       
 ## Step 2
   Learn how to detect cards and train the camera (Currently here as of 07/11/2024)
