@@ -8,4 +8,4 @@ https://victorzhou.com/series/neural-networks-from-scratch/
 
 https://www.youtube.com/watch?v=oXlwWbU8l2o
 
-Onenote from 2023-2024 :)
+2ELR Onenote from 2023-2024 :)
