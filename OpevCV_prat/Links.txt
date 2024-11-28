@@ -1,0 +1,22 @@
+My git hub
+https://github.com/BStokke007/CardDetector
+
+Rob github
+https://github.com/robotikklinja/Machine-Vision/blob/main/bernard%20code
+
+chat 1
+https://chatgpt.com/c/672c75ee-15a0-8002-a758-427f421a9176
+
+chat 2
+https://chatgpt.com/c/672f392b-0928-8002-8cce-7b6485aaffb6
+
+Where the cables are when setting up the station with screen, mouse, keyboard and web-camera.
+    USB-B port 1 (PC) to USB-A (Screen). (GRAY)
+    HDIM from HDIM (PC) to HDIM (Screen). (BLACK)
+    USB-B port 2 (PC) to Keyborad (LG). (BLUE)
+
+    USB-B port 2 (Screen) to Mouse (hp). (BLACK)
+    USB-B port 1 (Screen) to web-camera (Microsoft). (BLACK)
+    
+
+se me know
