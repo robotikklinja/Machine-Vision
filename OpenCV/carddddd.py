@@ -1,3 +1,6 @@
+#This code was to test for splitting the rank and the suit from each other
+
+
 import cv2 as cv
 
 corner = cv.imread(r'Photos\2_Cc.jpg', cv.IMREAD_GRAYSCALE)
