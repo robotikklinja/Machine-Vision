@@ -1,3 +1,7 @@
+# This code was used to learn about the basic OpenCV functions
+
+
+
 import cv2 as cv
 import numpy as np
 
