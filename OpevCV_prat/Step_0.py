@@ -124,29 +124,32 @@ def find_card(img):
         if warped.shape[1] > warped.shape[0]: # Check if the width is longer than hight
             warped = cv.rotate(warped, cv.ROTATE_90_CLOCKWISE) # Rotate image (clockwise)
  
-        # h_n is the ratio of the total height of the card to the height of the roi
-        h_n = 3.9
-        # w_n is the ratio of the total width of the card to the width of the roi
-        w_n = 5.9 
-       
-        h = warped.shape[0]
+        # h_n is the ratio of the total height of the card to the height of the roi mesured (manualy)
+        h_n = 3.9 # This isn't good and other methods should be used
 
-        n = h/h_n
-        n = round(n)
-        w = warped.shape[1]
-        v = w/w_n
-        v = round(v)
-        ROI = warped[0:int(n), 0:int(v)]  # Adjust size as needed
+        # w_n is the ratio of the total width of the card to the width of the roi mesured (manualy)
+        w_n = 5.9 # This isn't good and other methods should be used
 
-        # Display each card individually
+        h = warped.shape[0] # Height of the 2D image of the card
+        w = warped.shape[1] # Width of the 2D image of the card
+
+        n = round(h/h_n) # n is the height of the ROI in this case
+        v = round(w/w_n) # v is the witdh of the ROI in this case
+    
+        ROI = warped[0:int(n), 0:int(v)]  # Define the ROI & adding "int()" just in case.
+
+        # Display each card individually and numbering the cards using "i"
         cv.imshow(f"Card {i+1}", warped)   
  
-        cv.imshow("ROI", ROI) 
+        # Display the ROI and numbering the ROI of the card usign "i"
+        cv.imshow(f"ROI {i+1}", ROI) 
 
-        if len(cards) != 0: 
-            rank_image = splitt_img(ROI) 
+    # Dont call on the ROI if there are none.
+    if len(cards) != 0: 
+        rank_image = splitt_img(ROI) 
 
-            cv.imshow("Rank", rank_image)
+        # Display the rank of the card
+        cv.imshow("Rank", rank_image)
 
 # Returns an image of rank and an image of suit
 def splitt_img(corner):
