@@ -13,6 +13,36 @@ import cv2
 import cv2 as cv
 import numpy as np
 
+
+# Converts number in array suits to str
+def nr_SUIT_SUIT(nr_suit):
+    SUIT = {
+        0: "Harts",
+        1: "Spades",
+        2: "Diamonds",
+        3: "Clubs"
+    }
+    return SUIT
+
+# Converts number in array ranks to str
+def nr_RANK_RANK(nr_rank):
+    RANK = {
+        0: "Ace",
+        1: "Two",
+        2: "Three",
+        3: "Four",
+        4: "Five",
+        5: "Six",
+        6: "Seven",
+        7: "Eight",
+        8: "Nine",
+        9: "Ten",
+        10: "Jack",
+        11: "Queen",
+        12: "King"
+    }
+    return RANK
+
 # For general resize of things
 def resize_to_ref(image, ref_image): 
     width = int(image.shape[1]*0 + ref_image)
@@ -151,10 +181,18 @@ def find_card(img):
         # Display the rank of the card
         cv.imshow("Rank", rank_image)
 
-# Returns an image of rank and an image of suit
+# Returns an image of rank and an image of suit 
 def splitt_img(corner):
 
-    ROI_RANK = corner[(corner.shape[1]//2):(corner.shape[0]//2), corner.shape[1]:corner.shape[0]]
+    height, width = corner.shape
+
+    # There should be a better method to adjust the areal between ROI of rank and suit
+    ROI_diff = round(height * 0.1) # guess 10%
+
+    # Define the ROI for Rank in the image "corner"
+    ROI_RANK = corner[0:((height//2) + ROI_diff), 0:width]
+
+    ROI_SUIT = corner[((height//2) + ROI_diff): height, 0:width]
 
     # Make an image to black and white (including gray) 
     # gray = cv.cvtColor(ROI_RANK, cv.COLOR_BGR2GRAY) 
@@ -163,7 +201,7 @@ def splitt_img(corner):
     _, thresh = cv.threshold(ROI_RANK, 50, 255, cv.THRESH_BINARY) 
  
     # Finds the contours in an image (shapes)
-    contours, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE) 
 
     # Sort contours by area (largest to smallest) and keep the largest two
     contours = sorted(contours, key=cv.contourArea, reverse=True)[:2] 
