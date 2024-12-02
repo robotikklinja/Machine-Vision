@@ -144,7 +144,7 @@ def find_card(img):
         # Display the ROI and numbering the ROI of the card usign "i"
         cv.imshow(f"ROI {i+1}", ROI) 
 
-    # Dont call on the ROI if there are none.
+    # Don't call on the ROI if there are none.
     if len(cards) != 0: 
         rank_image = splitt_img(ROI) 
 
