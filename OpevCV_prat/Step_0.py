@@ -176,10 +176,11 @@ def find_card(img):
 
     # Don't call on the ROI if there are none.
     if len(cards) != 0: 
-        rank_image = splitt_img(ROI) 
+        rank_image, suit_image = splitt_img(ROI) 
 
         # Display the rank of the card
         cv.imshow("Rank", rank_image)
+        cv.imshow("Suit", suit_image)
 
 # Returns an image of rank and an image of suit 
 def splitt_img(corner):
@@ -195,29 +196,35 @@ def splitt_img(corner):
     ROI_SUIT = corner[((height//2) + ROI_diff): height, 0:width]
 
     # Make an image to black and white (including gray) 
-    gray = cv.cvtColor(ROI_RANK, cv.COLOR_BGR2GRAY) 
+    gray_RANK = cv.cvtColor(ROI_RANK, cv.COLOR_BGR2GRAY) 
+    gray_SUIT = cv.cvtColor(ROI_SUIT, cv.COLOR_BGR2GRAY) 
  
-    # Highlights the edges in an image q
-    _, thresh = cv.threshold(gray, 50, 255, cv.THRESH_BINARY) 
+    # Highlights the edges in an image 
+    _, thresh_RANK = cv.threshold(gray_RANK, 50, 255, cv.THRESH_BINARY) 
+    _, thresh_SUIT = cv.threshold(gray_SUIT, 50, 255, cv.THRESH_BINARY) 
+
  
     # Finds the contours in an image (shapes)
-    contours, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE) 
+    contours_RANK, _ = cv.findContours(thresh_RANK, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE) 
+    contours_SUIT, _ = cv.findContours(thresh_SUIT, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE) 
 
     # Sort contours by area (largest to smallest) and keep the largest two
-    contours = sorted(contours, key=cv.contourArea, reverse=True)[:2] 
+    contours_RANK = sorted(contours_RANK, key=cv.contourArea, reverse=True)[:1] 
+    contours_SUIT = sorted(contours_SUIT, key=cv.contourArea, reverse=True)[:1] 
 
     # Ensure the rank is above the suit by sorting by vertical position
-    contours = sorted(contours, key=lambda c: cv.boundingRect(c)[1])
+    contours_RANK = sorted(contours_RANK, key=lambda c: cv.boundingRect(c)[1])
+    contours_SUIT = sorted(contours_SUIT, key=lambda c: cv.boundingRect(c)[1])
 
     # Extract bounding boxes 
-    rank_x, rank_y, rank_w, rank_h = cv.boundingRect(contours[0])  # Rank 
-    # suit_x, suit_y, suit_w, suit_h = cv.boundingRect(contours[1])  # Suit 
+    rank_x, rank_y, rank_w, rank_h = cv.boundingRect(contours_RANK[0])  # Rank 
+    suit_x, suit_y, suit_w, suit_h = cv.boundingRect(contours_SUIT[0])  # Suit 
 
     # Crop the rank and suit areas 
     rank_img = corner[rank_y:rank_y+rank_h, rank_x:rank_x+rank_w] # Rand Image
-    # suit_img = corner[suit_y:suit_y+suit_h, suit_x:suit_x+suit_w] # Suit Image
+    suit_img = corner[suit_y:suit_y+suit_h, suit_x:suit_x+suit_w] # Suit Image
 
-    return rank_img
+    return rank_img, suit_img
 
 
 # Video feed
