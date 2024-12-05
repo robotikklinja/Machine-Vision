@@ -3,9 +3,9 @@
 
 import cv2 as cv
 
-corner = cv.imread(r'Photos\2_Cc.jpg', cv.IMREAD_GRAYSCALE)
+corner = cv.imread(r'OpenCV\Photos\2_Cc.jpg', cv.COLOR_BGR2GRAY)
 
-h, w = corner.shape
+h, w, _ = corner.shape
 diff_h = round(h * 0.1) # 10%
 
 RANK = corner[0:((h//2)+diff_h), 0:w] # ROI for Rank
