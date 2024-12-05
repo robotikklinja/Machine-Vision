@@ -10,7 +10,6 @@ Updated by:
 B.Stokke & V.Dalisay on 21.11.2024
 V.Dalisay on 28.11.2024
 """
-import cv2
 import cv2 as cv
 import numpy as np
 import time
@@ -25,24 +24,36 @@ def rankandsuit(corner):
     #the height and width of the corner are defined as h and w
     h, w = gray.shape
 
-
     diff_h = round(h * 0.1) # 10%
     RANK = gray[0:((h//2)+diff_h), 0:w] # ROI for Rank
     SUIT = gray[((h//2)+diff_h):h, 0:w] # ROI for Suit
 
-    # Get the coordinates of the Rank and Suit regions (for bounding boxes)
-    rank_x, rank_y, rank_w, rank_h = 0, 0, w, (h // 2) + diff_h
-    suit_x, suit_y, suit_w, suit_h = 0, (h // 2) + diff_h, w, h
+    # # Get the coordinates of the Rank and Suit regions (for bounding boxes)
+    # rank_x, rank_y, rank_w, rank_h = 0, 0, w, (h // 2) + diff_h
+    # suit_x, suit_y, suit_w, suit_h = 0, (h // 2) + diff_h, w, h
 
-    # Draw bounding boxes around Rank and Suit
-    cv.rectangle(corner, (rank_x, rank_y), (rank_x + rank_w, rank_y + rank_h), (0, 255, 0), 2)  # Green bounding box for Rank
-    cv.rectangle(corner, (suit_x, suit_y), (suit_x + suit_w, suit_y + suit_h), (0, 0, 255), 2)  # Red bounding box for Suit
+    # # Draw bounding boxes around Rank and Suit
+    # cv.rectangle(corner, (rank_x, rank_y), (rank_x + rank_w, rank_y + rank_h), (0, 255, 0), 2)  # Green bounding box for Rank
+    # cv.rectangle(corner, (suit_x, suit_y), (suit_x + suit_w, suit_y + suit_h), (0, 0, 255), 2)  # Red bounding box for Suit
+
+    R_edge = cv.Canny(RANK, 50, 150)
+    #do the same for suit
+
+    R_contour, _ = cv.findContours(R_edge, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    #do the same for suit
+
+    rank_x, rank_y, rank_w, rank_h = cv.boundingRect(R_contour[0])
+    #do the same for suit
+
+    rank_img = corner[rank_y:rank_y+rank_h, rank_x:rank_x+rank_w] # Rank img
+    #do the same for suit
 
     # Show the images with the bounding boxes
     cv.imshow('Rank and Suit with Bounding Boxes', corner)
     cv.imshow('rankimg', RANK)
     cv.imshow('suitimg', SUIT)
 
+    return rank_img
 
 # A function that finds cards and makes a line around it
 def find_card(img):
@@ -136,11 +147,11 @@ def find_card(img):
         # Display the corner
         cv.imshow("Corner", ROI)
 
-        if ROI is not None and len(ROI) > 0:
-            rankandsuit(ROI)
+    if ROI is not None and len(ROI) > 0:
+        rankandsuit(ROI)
 
 # Video feed
-capture = cv.VideoCapture(1)
+capture = cv.VideoCapture(0)
 
 # Constant loop*
 while True:
@@ -162,7 +173,7 @@ while True:
         continue  # Skip this frame and continue with the next
     
     # Break from the while-loop
-    if cv2.waitKey(20) & 0xFF==ord('q'): 
+    if cv.waitKey(20) & 0xFF==ord('q'): 
         break
 
 # Stop capturing from the camera 
@@ -173,6 +184,5 @@ cv.destroyAllWindows()
 
 end = time.time()
 ti = end - start
-
 # Print the time it took fro the code to run until the end
 print(ti)
