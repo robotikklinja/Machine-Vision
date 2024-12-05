@@ -84,7 +84,7 @@ def resize_suit(image, scale=0.75):
 # A function that finds cards and makes a line around it
 def find_card(img): 
     # Make an image to black and white (including gray)
-    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY) 
  
     # blur the image to make shapes more clear by take away any details
     blurred = cv.GaussianBlur(gray, (5, 5), 0)
@@ -166,7 +166,7 @@ def find_card(img):
         n = round(h/h_n) # n is the height of the ROI in this case
         v = round(w/w_n) # v is the witdh of the ROI in this case
     
-        ROI = warped[0:int(n), 0:int(v)]  # Define the ROI & adding "int()" just in case.
+        ROI = warped[0:n, 0:v]  # Define the ROI
 
         # Display each card individually and numbering the cards using "i"
         cv.imshow(f"Card {i+1}", warped)   
@@ -176,48 +176,69 @@ def find_card(img):
 
     # Don't call on the ROI if there are none.
     if len(cards) != 0: 
-        rank_image = splitt_img(ROI) 
+        rank_image, suit_image = splitt_img(ROI) 
 
         # Display the rank of the card
         cv.imshow("Rank", rank_image)
+        cv.imshow("Suit", suit_image)
 
 # Returns an image of rank and an image of suit 
 def splitt_img(corner):
 
-    height, width = corner.shape
+    height, width, _ = corner.shape 
 
     # There should be a better method to adjust the areal between ROI of rank and suit
-    ROI_diff = round(height * 0.1) # guess 10%
+    ROI_diff = round(height * 0.1) # guess 10% (not good method)
+
+    rank_height = (height // 2) + ROI_diff  # Calculate height of the Rank ROI 
+    # rank_height = ROI_RANK.shape[0] # this is alos a way of finding the height of the Rank ROI, but don't need ROI_RANK
 
     # Define the ROI for Rank in the image "corner"
     ROI_RANK = corner[0:((height//2) + ROI_diff), 0:width]
+    # cv.imshow("ROI RANK", ROI_RANK)
 
     ROI_SUIT = corner[((height//2) + ROI_diff): height, 0:width]
+    # cv.imshow("ROI SUIT", ROI_SUIT)
+
+    # edge = cv.Canny(ROI_RANK, 50, 150) 
+    # cv.imshow("R", edge)
+    # edge = cv.Canny(ROI_SUIT, 50, 150) 
+    # cv.imshow("S" ,edge)
 
     # Make an image to black and white (including gray) 
-    # gray = cv.cvtColor(ROI_RANK, cv.COLOR_BGR2GRAY) 
+    gray_RANK = cv.cvtColor(ROI_RANK, cv.COLOR_BGR2GRAY) 
+    gray_SUIT = cv.cvtColor(ROI_SUIT, cv.COLOR_BGR2GRAY)  
  
+    blurred_RANK = cv.GaussianBlur(gray_RANK, (3, 3), 0)
+    blurred_SUIT = cv.GaussianBlur(gray_SUIT, (3, 3), 0)
+
     # Highlights the edges in an image 
-    _, thresh = cv.threshold(ROI_RANK, 50, 255, cv.THRESH_BINARY) 
+    edge_RANK = cv.Canny(blurred_RANK, 50, 150) 
+    edge_SUIT = cv.Canny(blurred_SUIT, 50, 150) 
+
+    cv.imshow("gray rank", edge_RANK) 
+    cv.imshow("gray suit", edge_SUIT) 
  
     # Finds the contours in an image (shapes)
-    contours, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE) 
+    contours_RANK, _ = cv.findContours(edge_RANK, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE) 
+    contours_SUIT, _ = cv.findContours(edge_SUIT, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE) 
 
-    # Sort contours by area (largest to smallest) and keep the largest two
-    contours = sorted(contours, key=cv.contourArea, reverse=True)[:2] 
-
-    # Ensure the rank is above the suit by sorting by vertical position
-    contours = sorted(contours, key=lambda c: cv.boundingRect(c)[1])
+    # Sort contours by area (largest to smallest) and keep the largest one
+    contours_RANK = sorted(contours_RANK, key=cv.contourArea, reverse=True)[:1] 
+    contours_SUIT = sorted(contours_SUIT, key=cv.contourArea, reverse=True)[:1] 
 
     # Extract bounding boxes 
-    rank_x, rank_y, rank_w, rank_h = cv.boundingRect(contours[0])  # Rank 
-    # suit_x, suit_y, suit_w, suit_h = cv.boundingRect(contours[1])  # Suit 
+    rank_x, rank_y, rank_w, rank_h = cv.boundingRect(contours_RANK[0])  # Rank 
+    suit_x, suit_y, suit_w, suit_h = cv.boundingRect(contours_SUIT[0])  # Suit 
 
     # Crop the rank and suit areas 
-    rank_img = corner[rank_y:rank_y+rank_h, rank_x:rank_x+rank_w] # Rand Image
-    # suit_img = corner[suit_y:suit_y+suit_h, suit_x:suit_x+suit_w] # Suit Image
+    rank_img = corner[rank_y:rank_y+rank_h, rank_x:(rank_x+rank_w)] # Rand Image
+    suit_img = corner[suit_y + rank_height : suit_y + rank_height + suit_h, suit_x : suit_x + suit_w]
 
-    return rank_img
+    # cv.imshow("R I", rank_img)
+    # cv.imshow("S I", suit_img)
+
+    return rank_img, suit_img
 
 
 # Video feed
