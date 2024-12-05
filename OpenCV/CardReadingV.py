@@ -23,7 +23,7 @@ start = time.time()
 def rankandsuit(corner):
 
     #the height and width of the corner are defined as h and w
-    h, w = gray.shape
+    h, w, _ = corner.shape
 
     # make the corner into a grayscale
     gray = cv.cvtColor(corner, cv.COLOR_BGR2GRAY)
@@ -49,6 +49,7 @@ def rankandsuit(corner):
     # # Show the images with the bounding boxes
     # cv.imshow('Rank and Suit with Bounding Boxes', corner)
 
+    # blur the images so that it dont got too much noise
     blurrank = cv.GaussianBlur(grayrank, (1,1), cv.BORDER_DEFAULT)
     blursuit = cv.GaussianBlur(graysuit, (1,1), cv.BORDER_DEFAULT)
 
@@ -67,6 +68,9 @@ def rankandsuit(corner):
     rank_img = corner[rank_y : rank_y + rank_h, rank_x : rank_x+ rank_w] # Rank img
     suit_img = corner[suit_y + rank_height : rank_height + suit_y + suit_h, suit_x : suit_x + suit_w] # Suit img
 
+    cv.imshow('rankimg', rank_img)
+    cv.imshow('suitimg', suit_img)  
+
     def rescaleFrame(frame, scale=5): #Function to rescale the frame of the window
         width = int(frame.shape[1] * scale) # when frame.shape is 1 we refer to the width
         height = int(frame.shape[0] * scale) # when frame.shape is 0 we refer to the height
@@ -78,10 +82,9 @@ def rankandsuit(corner):
     cv.imshow('resized rank image', resized_rank_img) # show the resized image
     resized_suit_img = rescaleFrame(suit_img) # The new image is now called resized_suit_img
     cv.imshow('resized suit image', resized_suit_img) # show the resized image
-    cv.imshow('rankimg', rank_img)
-    cv.imshow('suitimg', suit_img)
 
-    return rank_img
+    return rank_img, suit_img
+
 
 # A function that finds cards and makes a line around it
 def find_card(img):
@@ -166,7 +169,7 @@ def find_card(img):
         # h is the height of the card. w is the width of the card
         h, w = warped.shape[0], warped.shape[1]
         # n is the height of the card divided by the ratio. v is the width of the card divided by the ratio w_n
-        n, v = h//h_n,w//w_n
+        n, v = h//h_n, w//w_n
 
         ROI = warped[0:int(n), 0:int(v)]  # Adjust size as needed
     
