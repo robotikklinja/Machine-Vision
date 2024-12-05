@@ -84,7 +84,7 @@ def resize_suit(image, scale=0.75):
 # A function that finds cards and makes a line around it
 def find_card(img): 
     # Make an image to black and white (including gray)
-    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY) 
  
     # blur the image to make shapes more clear by take away any details
     blurred = cv.GaussianBlur(gray, (5, 5), 0)
@@ -184,7 +184,7 @@ def find_card(img):
 # Returns an image of rank and an image of suit 
 def splitt_img(corner):
 
-    height, width = corner.shape
+    height, width, _ = corner.shape 
 
     # There should be a better method to adjust the areal between ROI of rank and suit
     ROI_diff = round(height * 0.1) # guess 10%
@@ -195,10 +195,10 @@ def splitt_img(corner):
     ROI_SUIT = corner[((height//2) + ROI_diff): height, 0:width]
 
     # Make an image to black and white (including gray) 
-    # gray = cv.cvtColor(ROI_RANK, cv.COLOR_BGR2GRAY) 
+    gray = cv.cvtColor(ROI_RANK, cv.COLOR_BGR2GRAY) 
  
-    # Highlights the edges in an image 
-    _, thresh = cv.threshold(ROI_RANK, 50, 255, cv.THRESH_BINARY) 
+    # Highlights the edges in an image q
+    _, thresh = cv.threshold(gray, 50, 255, cv.THRESH_BINARY) 
  
     # Finds the contours in an image (shapes)
     contours, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE) 
