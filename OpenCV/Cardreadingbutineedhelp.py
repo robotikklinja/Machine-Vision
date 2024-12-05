@@ -147,9 +147,11 @@ def find_card(img):
     for card_window_name in list(card_windows.keys()):
         if card_window_name not in current_card_windows:
 
-            time.time(0)
             cv.destroyWindow(card_window_name)  # Close the window for the removed card
             del card_windows[card_window_name]  # Remove from the dictionary
+
+#sjekke hvor lang tid som har gått siden kort ikke har blitt sett
+# Hvis tid = for mye do delete window :(
 
 # Video feed
 capture = cv.VideoCapture(0)
