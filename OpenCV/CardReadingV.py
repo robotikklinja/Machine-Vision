@@ -9,8 +9,9 @@ Made by B.Stokke on 07.11.2024
 Updated by:
 B.Stokke & V.Dalisay on 21.11.2024
 V.Dalisay on 28.11.2024
+V.Dalisay on 05.11.2024
 """
-import cv2
+
 import cv2 as cv
 import numpy as np
 import time
@@ -20,28 +21,69 @@ start = time.time()
 
 # Function to isolate the suit and the rank from each other
 def rankandsuit(corner):
+
+    #the height and width of the corner are defined as h and w
+    h, w, _ = corner.shape
+
     # make the corner into a grayscale
     gray = cv.cvtColor(corner, cv.COLOR_BGR2GRAY)
-    #the height and width of the corner are defined as h and w
-    h, w = gray.shape
 
-
+    # round the height of the corner of the card to 10% and make it into a diff_h variable, so that the rank and suit are separated properly.
     diff_h = round(h * 0.1) # 10%
-    RANK = gray[0:((h//2)+diff_h), 0:w] # ROI for Rank
-    SUIT = gray[((h//2)+diff_h):h, 0:w] # ROI for Suit
 
-    # Get the coordinates of the Rank and Suit regions (for bounding boxes)
-    rank_x, rank_y, rank_w, rank_h = 0, 0, w, (h // 2) + diff_h
-    suit_x, suit_y, suit_w, suit_h = 0, (h // 2) + diff_h, w, h
+    # this is to divide the rank and the suit. It uses the rank 
+    rank_height = (h//2) + diff_h
 
-    # Draw bounding boxes around Rank and Suit
-    cv.rectangle(corner, (rank_x, rank_y), (rank_x + rank_w, rank_y + rank_h), (0, 255, 0), 2)  # Green bounding box for Rank
-    cv.rectangle(corner, (suit_x, suit_y), (suit_x + suit_w, suit_y + suit_h), (0, 0, 255), 2)  # Red bounding box for Suit
+    # divide the grayscaled corner into the rank and the suit
+    grayrank = gray[0:((h//2)+diff_h), 0:w] # ROI for Rank
+    graysuit = gray[((h//2)+diff_h):h, 0:w] # ROI for Suit
 
-    # Show the images with the bounding boxes
-    cv.imshow('Rank and Suit with Bounding Boxes', corner)
-    cv.imshow('rankimg', RANK)
-    cv.imshow('suitimg', SUIT)
+    # # Get the coordinates of the Rank and Suit regions (for bounding boxes)
+    # rank_x, rank_y, rank_w, rank_h = 0, 0, w, (h // 2) + diff_h
+    # suit_x, suit_y, suit_w, suit_h = 0, (h // 2) + diff_h, w, h
+
+    # # Draw bounding boxes around Rank and Suit
+    # cv.rectangle(corner, (rank_x, rank_y), (rank_x + rank_w, rank_y + rank_h), (0, 255, 0), 2)  # Green bounding box for Rank
+    # cv.rectangle(corner, (suit_x, suit_y), (suit_x + suit_w, suit_y + suit_h), (0, 0, 255), 2)  # Red bounding box for Suit
+
+    # # Show the images with the bounding boxes
+    # cv.imshow('Rank and Suit with Bounding Boxes', corner)
+
+    # blur the images so that it dont got too much noise
+    blurrank = cv.GaussianBlur(grayrank, (1,1), cv.BORDER_DEFAULT)
+    blursuit = cv.GaussianBlur(graysuit, (1,1), cv.BORDER_DEFAULT)
+
+    # turns the crayscaled images into an image full of edges
+    R_edge = cv.Canny(blurrank, 50, 150)
+    S_edge = cv.Canny(blursuit, 50, 150)
+
+    # Find contours to help with the bounding of the rank and suit
+    R_contour, _ = cv.findContours(R_edge, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    S_contour, _ = cv.findContours(S_edge, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+
+    #Set a bounding boxx for both the rank and the suit of the card
+    rank_x, rank_y, rank_w, rank_h = cv.boundingRect(R_contour[0])
+    suit_x, suit_y, suit_w, suit_h = cv.boundingRect(S_contour[0])
+
+    rank_img = corner[rank_y : rank_y + rank_h, rank_x : rank_x+ rank_w] # Rank img
+    suit_img = corner[suit_y + rank_height : rank_height + suit_y + suit_h, suit_x : suit_x + suit_w] # Suit img
+
+    cv.imshow('rankimg', rank_img)
+    cv.imshow('suitimg', suit_img)  
+
+    def rescaleFrame(frame, scale=5): #Function to rescale the frame of the window
+        width = int(frame.shape[1] * scale) # when frame.shape is 1 we refer to the width
+        height = int(frame.shape[0] * scale) # when frame.shape is 0 we refer to the height
+        dimensions = (width, height) # define it as dimensions
+
+        return cv.resize(frame, dimensions, interpolation=cv.INTER_AREA)
+
+    resized_rank_img = rescaleFrame(rank_img) # The new image is now called resized_rank_img
+    cv.imshow('resized rank image', resized_rank_img) # show the resized image
+    resized_suit_img = rescaleFrame(suit_img) # The new image is now called resized_suit_img
+    cv.imshow('resized suit image', resized_suit_img) # show the resized image
+
+    return rank_img, suit_img
 
 
 # A function that finds cards and makes a line around it
@@ -127,7 +169,7 @@ def find_card(img):
         # h is the height of the card. w is the width of the card
         h, w = warped.shape[0], warped.shape[1]
         # n is the height of the card divided by the ratio. v is the width of the card divided by the ratio w_n
-        n, v = h//h_n,w//w_n
+        n, v = h//h_n, w//w_n
 
         ROI = warped[0:int(n), 0:int(v)]  # Adjust size as needed
     
@@ -135,12 +177,14 @@ def find_card(img):
         cv.imshow(f"Card {i+1}", warped)
         # Display the corner
         cv.imshow("Corner", ROI)
-
+    try:
         if ROI is not None and len(ROI) > 0:
             rankandsuit(ROI)
+    except:
+        pass
 
 # Video feed
-capture = cv.VideoCapture(1)
+capture = cv.VideoCapture(0)
 
 # Constant loop*
 while True:
@@ -162,7 +206,7 @@ while True:
         continue  # Skip this frame and continue with the next
     
     # Break from the while-loop
-    if cv2.waitKey(20) & 0xFF==ord('q'): 
+    if cv.waitKey(20) & 0xFF==ord('q'): 
         break
 
 # Stop capturing from the camera 
@@ -173,6 +217,5 @@ cv.destroyAllWindows()
 
 end = time.time()
 ti = end - start
-
 # Print the time it took fro the code to run until the end
 print(ti)
