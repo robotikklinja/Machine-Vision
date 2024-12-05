@@ -14,7 +14,7 @@ def image_similarity_score(imageA, imageB):
     diff_score = np.mean(diff_float)  # Mean of all pixel differences in the range 0-1
     
     # Calculate similarity as (1 - diff_score) * 100 to get a percentage
-    similarity_score = (1 - diff_score) * 100
+    similarity_score = (1 - diff_score) * 100 
     
     return similarity_score
 
