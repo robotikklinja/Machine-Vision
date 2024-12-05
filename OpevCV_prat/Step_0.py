@@ -21,8 +21,8 @@ def nr_SUIT_SUIT(nr_suit):
         1: "Spades",
         2: "Diamonds",
         3: "Clubs"
-    }
-    return SUIT
+    } 
+    return SUIT.get(nr_suit, "Invalid number in Suit")
 
 # Converts number in array ranks to str
 def nr_RANK_RANK(nr_rank):
@@ -41,12 +41,62 @@ def nr_RANK_RANK(nr_rank):
         11: "Queen",
         12: "King"
     }
-    return RANK
+    return RANK.get(nr_rank, "Invalid number in Rank")
+
+
+# Compares two images and returns a score.
+def image_similarity_score(imageA, imageB):
+    # Ensure the images are the same size
+    if imageA.shape != imageB.shape:
+        raise ValueError("Images must have the same dimensions") 
+    
+    # Calculate the absolute difference between the two images
+    diff = cv.absdiff(imageA, imageB) 
+    
+    # Convert the difference to float and normalize it
+    diff_float = diff.astype("float") / 255  # Normalize difference to range 0-1
+    diff_score = np.mean(diff_float)  # Mean of all pixel differences in the range 0-1
+    
+    # Calculate similarity as (1 - diff_score) * 100 to get a percentage
+    similarity_score = (1 - diff_score) * 100 
+    
+    return similarity_score
+
+# Compare an image to the reference images in paths and returns the row with the score 
+def compare(paths, img):
+    # Set the best score to be the worst score
+    best_score = 0
+
+    # Used to find what kind of reference images are in use
+    ref = paths[0]
+
+    # Copy image so that the OG image doesn't change in resizing
+    copy = img.copy
+
+    # Resize image to compare
+    copy = resize_to_ref(copy, ref)
+
+    # Compares all the reference images with the input image
+    for i in range(len(paths)):
+        path_suit = paths[i] # define the path of image nr "i"
+        ref_img = cv.imread(path_suit, cv.IMREAD_GRAYSCALE) 
+
+        # compare image i to the input image
+        score = image_similarity_score(ref_img, copy)
+
+        # Makes sure the best score is allways the best score
+        if best_score < score:
+            best_score = score
+            # Used to find what card the image is
+            row = i 
+
+    # Return the row the best image is in and the score it got
+    return row, best_score
 
 # For general resize of things
 def resize_to_ref(image, ref_image): 
-    width = int(image.shape[1]*0 + ref_image)
-    hight = int(image.shape[0]*0 + ref_image)
+    width = int(image.shape[1]*0 + ref_image.shape[1])
+    hight = int(image.shape[0]*0 + ref_image.shape[0])
 
     dimensions = (width, hight) 
 
@@ -171,16 +221,26 @@ def find_card(img):
         # Display each card individually and numbering the cards using "i"
         cv.imshow(f"Card {i+1}", warped)   
  
-        # Display the ROI and numbering the ROI of the card usign "i"
+        # Display the ROI and numbering the ROI of the card using "i"
         cv.imshow(f"ROI {i+1}", ROI) 
 
     # Don't call on the ROI if there are none.
     if len(cards) != 0: 
-        rank_image, suit_image = splitt_img(ROI) 
+        try:
+            rank_image, suit_image = splitt_img(ROI) 
 
-        # Display the rank of the card
-        cv.imshow("Rank", rank_image)
-        cv.imshow("Suit", suit_image)
+            # Display the rank of the card
+            cv.imshow("Rank", rank_image)
+            cv.imshow("Suit", suit_image)
+
+            # Compare to find the cards rank and suit and the score of both
+            RANK_ROW, rank_score = compare(RANK_paths, rank_image)
+            SUIT_ROW, suit_score = compare(Suit_paths, suit_image)
+
+            
+
+        except:
+            pass
 
 # Returns an image of rank and an image of suit 
 def splitt_img(corner):
@@ -216,8 +276,8 @@ def splitt_img(corner):
     edge_RANK = cv.Canny(blurred_RANK, 50, 150) 
     edge_SUIT = cv.Canny(blurred_SUIT, 50, 150) 
 
-    cv.imshow("gray rank", edge_RANK) 
-    cv.imshow("gray suit", edge_SUIT) 
+    # cv.imshow("gray rank", edge_RANK) 
+    # cv.imshow("gray suit", edge_SUIT) 
  
     # Finds the contours in an image (shapes)
     contours_RANK, _ = cv.findContours(edge_RANK, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE) 
@@ -239,6 +299,13 @@ def splitt_img(corner):
     # cv.imshow("S I", suit_img)
 
     return rank_img, suit_img
+
+
+# An array of paths to the reference images of ranks
+RANK_paths = [r"OpevCV_prat\Card_Imgs\Ace.jpg", r"OpevCV_prat\Card_Imgs\Two.jpg", r"OpevCV_prat\Card_Imgs\Three.jpg", r"OpevCV_prat\Card_Imgs\Four.jpg", r"OpevCV_prat\Card_Imgs\Five.jpg", r"OpevCV_prat\Card_Imgs\Six.jpg", r"OpevCV_prat\Card_Imgs\Seven.jpg", r"OpevCV_prat\Card_Imgs\Eight.jpg", r"OpevCV_prat\Card_Imgs\Nine.jpg", r"OpevCV_prat\Card_Imgs\Ten.jpg", r"OpevCV_prat\Card_Imgs\Jack.jpg", r"OpevCV_prat\Card_Imgs\Queen.jpg", r"OpevCV_prat\Card_Imgs\King.jpg"]
+
+# An array of paths to the reference images of suits
+Suit_paths = [r"OpevCV_prat\Photos\Hearts.jpg", r"OpevCV_prat\Photos\Spades.jpg", r"OpevCV_prat\Photos\Diamonds.jpg", r"OpevCV_prat\Photos\Clubs.jpg"]
 
 
 # Video feed

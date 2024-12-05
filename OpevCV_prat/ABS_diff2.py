@@ -18,17 +18,17 @@ def image_similarity_score(imageA, imageB):
     
     return similarity_score
 
-def nr_suit_to_suit(suit):
-    # Check what suit it is:
-    if suit == 0: # Checks for Hearts
-        suit = "Hearts"
-    elif suit == 1: # Check for Spades
-        suit = "Spades"
-    elif suit == 2: # Checks for Diamonds
-        suit = "Diamonds"
-    elif suit == 3: # Checks for Clubs
-        suit = "Clubs"
-    return suit
+def nr_SUIT_SUIT(nr_suit):
+    SUIT = {
+        0: "Harts",
+        1: "Spades",
+        2: "Diamonds",
+        3: "Clubs"
+    }
+    # Access the dictionary directly
+    v = SUIT.get(nr_suit, "invalid")
+    return v
+
 
 def nr_symbol_to_symbol(number_nr):
     int(number_nr) 
