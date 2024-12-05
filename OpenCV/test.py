@@ -4,9 +4,11 @@ import cv2 as cv
 corner = cv.imread(r'OpenCV\Photos\2_Cc.jpg', cv.COLOR_BGR2GRAY)
 
 h, w, _ = corner.shape
-diff_h = round(h * 0.1) # 10%
+ROI_diff = round(h * 0.1) # 10%
+# Define the ROI for Rank in the image "corner"
+ROI_RANK = corner[0:((h//2) + ROI_diff), 0:w]
+ROI_SUIT = corner[((h//2) + ROI_diff): h, 0:w]
 
-ROI_RANK = corner[(h//2):(w//2), h:w]
 # Make an image to black and white (including gray) 
 # gray = cv.cvtColor(ROI_RANK, cv.COLOR_BGR2GRAY) 
  
@@ -27,5 +29,5 @@ rank_x, rank_y, rank_w, rank_h = cv.boundingRect(contours[0])  # Rank
 # suit_x, suit_y, suit_w, suit_h = cv.boundingRect(contours[1])  # Suit 
 
 # Crop the rank and suit areas 
-rank_img = corner[rank_y:rank_y+rank_h, rank_x:rank_x+rank_w] # Rand Image
+rank_img = corner[rank_y:rank_y+rank_h, rank_x:rank_x+rank_w] # Rank Image
 # suit_img = corner[suit_y:suit_y+suit_h, suit_x:suit_x+suit_w] # Suit Image
