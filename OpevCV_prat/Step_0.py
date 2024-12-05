@@ -188,41 +188,56 @@ def splitt_img(corner):
     height, width, _ = corner.shape 
 
     # There should be a better method to adjust the areal between ROI of rank and suit
-    ROI_diff = round(height * 0.1) # guess 10%
+    ROI_diff = round(height * 0.1) # guess 10% (not good method)
+
+    rank_height = (height // 2) + ROI_diff  # Calculate height of the Rank ROI 
+    # rank_height = ROI_RANK.shape[0] # this is alos a way of finding the height of the Rank ROI, but don't need ROI_RANK
 
     # Define the ROI for Rank in the image "corner"
     ROI_RANK = corner[0:((height//2) + ROI_diff), 0:width]
+    # cv.imshow("ROI RANK", ROI_RANK)
 
     ROI_SUIT = corner[((height//2) + ROI_diff): height, 0:width]
+    # cv.imshow("ROI SUIT", ROI_SUIT)
+
+    # edge = cv.Canny(ROI_RANK, 50, 150) 
+    # cv.imshow("R", edge)
+    # edge = cv.Canny(ROI_SUIT, 50, 150) 
+    # cv.imshow("S" ,edge)
 
     # Make an image to black and white (including gray) 
     gray_RANK = cv.cvtColor(ROI_RANK, cv.COLOR_BGR2GRAY) 
-    gray_SUIT = cv.cvtColor(ROI_SUIT, cv.COLOR_BGR2GRAY) 
+    gray_SUIT = cv.cvtColor(ROI_SUIT, cv.COLOR_BGR2GRAY)  
  
     # Highlights the edges in an image 
-    _, thresh_RANK = cv.threshold(gray_RANK, 50, 255, cv.THRESH_BINARY) 
-    _, thresh_SUIT = cv.threshold(gray_SUIT, 50, 255, cv.THRESH_BINARY) 
+    edge_RANK = cv.Canny(gray_RANK, 50, 150) 
+    edge_SUIT = cv.Canny(gray_SUIT, 50, 150) 
 
+    cv.imshow("gray rank", edge_RANK) 
+    cv.imshow("gray suit", edge_SUIT) 
  
     # Finds the contours in an image (shapes)
-    contours_RANK, _ = cv.findContours(thresh_RANK, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE) 
-    contours_SUIT, _ = cv.findContours(thresh_SUIT, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE) 
+    contours_RANK, _ = cv.findContours(edge_RANK, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE) 
+    contours_SUIT, _ = cv.findContours(edge_SUIT, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE) 
 
-    # Sort contours by area (largest to smallest) and keep the largest two
+    # Sort contours by area (largest to smallest) and keep the largest one
     contours_RANK = sorted(contours_RANK, key=cv.contourArea, reverse=True)[:1] 
     contours_SUIT = sorted(contours_SUIT, key=cv.contourArea, reverse=True)[:1] 
 
     # Ensure the rank is above the suit by sorting by vertical position
-    contours_RANK = sorted(contours_RANK, key=lambda c: cv.boundingRect(c)[1])
-    contours_SUIT = sorted(contours_SUIT, key=lambda c: cv.boundingRect(c)[1])
+    # contours_RANK = sorted(contours_RANK, key=lambda c: cv.boundingRect(c)[1])
+    # contours_SUIT = sorted(contours_SUIT, key=lambda c: cv.boundingRect(c)[1])
 
     # Extract bounding boxes 
     rank_x, rank_y, rank_w, rank_h = cv.boundingRect(contours_RANK[0])  # Rank 
     suit_x, suit_y, suit_w, suit_h = cv.boundingRect(contours_SUIT[0])  # Suit 
 
     # Crop the rank and suit areas 
-    rank_img = corner[rank_y:rank_y+rank_h, rank_x:rank_x+rank_w] # Rand Image
-    suit_img = corner[suit_y:suit_y+suit_h, suit_x:suit_x+suit_w] # Suit Image
+    rank_img = corner[rank_y:rank_y+rank_h, rank_x:(rank_x+rank_w)] # Rand Image
+    suit_img = corner[suit_y + rank_height : suit_y + rank_height + suit_h, suit_x : suit_x + suit_w]
+
+    # cv.imshow("R I", rank_img)
+    # cv.imshow("S I", suit_img)
 
     return rank_img, suit_img
 
