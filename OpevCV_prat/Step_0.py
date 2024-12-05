@@ -166,7 +166,7 @@ def find_card(img):
         n = round(h/h_n) # n is the height of the ROI in this case
         v = round(w/w_n) # v is the witdh of the ROI in this case
     
-        ROI = warped[0:int(n), 0:int(v)]  # Define the ROI & adding "int()" just in case.
+        ROI = warped[0:n, 0:v]  # Define the ROI
 
         # Display each card individually and numbering the cards using "i"
         cv.imshow(f"Card {i+1}", warped)   
@@ -209,9 +209,12 @@ def splitt_img(corner):
     gray_RANK = cv.cvtColor(ROI_RANK, cv.COLOR_BGR2GRAY) 
     gray_SUIT = cv.cvtColor(ROI_SUIT, cv.COLOR_BGR2GRAY)  
  
+    blurred_RANK = cv.GaussianBlur(gray_RANK, (3, 3), 0)
+    blurred_SUIT = cv.GaussianBlur(gray_SUIT, (3, 3), 0)
+
     # Highlights the edges in an image 
-    edge_RANK = cv.Canny(gray_RANK, 50, 150) 
-    edge_SUIT = cv.Canny(gray_SUIT, 50, 150) 
+    edge_RANK = cv.Canny(blurred_RANK, 50, 150) 
+    edge_SUIT = cv.Canny(blurred_SUIT, 50, 150) 
 
     cv.imshow("gray rank", edge_RANK) 
     cv.imshow("gray suit", edge_SUIT) 
@@ -223,10 +226,6 @@ def splitt_img(corner):
     # Sort contours by area (largest to smallest) and keep the largest one
     contours_RANK = sorted(contours_RANK, key=cv.contourArea, reverse=True)[:1] 
     contours_SUIT = sorted(contours_SUIT, key=cv.contourArea, reverse=True)[:1] 
-
-    # Ensure the rank is above the suit by sorting by vertical position
-    # contours_RANK = sorted(contours_RANK, key=lambda c: cv.boundingRect(c)[1])
-    # contours_SUIT = sorted(contours_SUIT, key=lambda c: cv.boundingRect(c)[1])
 
     # Extract bounding boxes 
     rank_x, rank_y, rank_w, rank_h = cv.boundingRect(contours_RANK[0])  # Rank 
