@@ -18,13 +18,26 @@ class Card:
     def __str__(self):
         # Convert the numbers and suit in the input to actual names so its more comprehensible
         rank_names = {
-            "A": "Ace", "2": "Two", "3": "Three", "4": "Four", "5": "Five", 
-            "6": "Six", "7": "Seven", "8": "Eight", "9": "Nine", "10": "Ten", 
-            "J": "Jack", "Q": "Queen", "K": "King"
+            "A": "Ace",
+            "2": "Two",
+            "3": "Three",
+            "4": "Four",
+            "5": "Five",
+            "6": "Six",
+            "7": "Seven",
+            "8": "Eight",
+            "9": "Nine",
+            "10": "Ten",
+            "J": "Jack",
+            "Q": "Queen",
+            "K": "King"
         }
         
         suit_names = {
-            "S": "Spades", "D": "Diamonds", "C": "Clubs", "H": "Hearts"
+            "S": "Spades",
+            "D": "Diamonds",
+            "C": "Clubs",
+            "H": "Hearts"
         }
         
         # Get the rank and suit name from the dictionary, or return an error if the rank and/or suit is invalid
