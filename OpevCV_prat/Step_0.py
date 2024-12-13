@@ -17,7 +17,7 @@ import numpy as np
 # Converts number in array suits to str
 def nr_SUIT_SUIT(nr_suit):
     SUIT = {
-        0: "Harts",
+        0: "Hearts",
         1: "Spades",
         2: "Diamonds",
         3: "Clubs"
