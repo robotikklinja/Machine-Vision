@@ -8,7 +8,7 @@ Made by V.Dalisay on 12.12.2024
 
 # Since the input comes as a string, a king of hearts will be inputted as a KH. The first character being the rank, K, and the second character being the suit, H.
 # This class makes it so that it identifies the input as a card.
-class Card:
+class Cardrule:
     # This function makes it so that every input is broken down into the rank and suit.
     def __init__(self, card_string):
         self.rank = card_string[:-1]  # Everything except the last character represents the rank
@@ -50,7 +50,7 @@ class Card:
     # def __repr__(self):
     #     return f"{self.rank}{self.suit}"  # Used for debugging or precise representations
 
-    # Return the card's value based on its location (hand or table).
+    # Function used to determine a card's value based on its location (hand or table).
     def get_value(self):
         rank_values = {
             "A": 1,
@@ -115,17 +115,17 @@ class Hand:
         if isinstance(card_string, list):
             # If the input is a list, add all cards in the list
             for card in card_string:
-                self.cards.append(Card(card))
+                self.cards.append(Cardrule(card))
         else:
             # If it's a single card string, add that one card
-            self.cards.append(Card(card_string))
+            self.cards.append(Cardrule(card_string))
         if len(self.cards) > 4:
             raise SyntaxError("Too many cards in hand")
         
     def set_location(self, location):
         # Set the location for each card in the hand (hand, table, etc.).
         for card in self.cards:
-            card.location = location
+            card.location = "hand"
     
     def __str__(self):
         # Use the str method for printing the hand (human-readable format)
@@ -134,7 +134,34 @@ class Hand:
     # def __repr__(self):
     #     # Use the repr method for debugging or more precise representation
     #     return f', '.join(repr(card) for card in self.cards)
-             
+
+class Table:
+    def __init__(self):
+        self.cards = []  # This will store Card objects
+
+    def add_card(self, card_string):
+        # Add one or more card strings to the hand.
+        if isinstance(card_string, list):
+            # If the input is a list, add all cards in the list
+            for card in card_string:
+                self.cards.append(Cardrule(card))
+        else:
+            # If it's a single card string, add that one card
+            self.cards.append(Cardrule(card_string))
+        
+    def set_location(self, location):
+        # Set the location for each card in the hand (hand, table, etc.).
+        for card in self.cards:
+            card.location = "table"
+    
+    def __str__(self):
+        # Use the str method for printing the hand (human-readable format)
+        return ", ".join(str(card) for card in self.cards)
+
+    # def __repr__(self):
+    #     # Use the repr method for debugging or more precise representation
+    #     return f', '.join(repr(card) for card in self.cards)
+
 class KrypKasinoGame:
     def __init__(self):
         self.players_hands = {}
