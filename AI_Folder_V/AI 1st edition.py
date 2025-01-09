@@ -185,14 +185,37 @@ class KrypKasinoAI:
         worst_claim = float('inf') # To avoid claims that result in getting points
 
         for card in self.hand:
-            can_claim, claim = can_claim_card(card, self.table)
+            can_claim, claim = cardcombos(card, self.table)
             if can_claim:
                 # Calculate how many cards would be claimed if this card is played
                 claim_size = len(claim)
 
-                
+                # AI should avoid claiming a card that would result in a lot of claimed cards
+                if claim_size < worst_claim:
+                    worst_claim = claim_size
+                    best_card = card
+                    best_claim = claim
+
+        # If no card can be claimed (safe move), just play the card with the lowest value
+        if best_card is None:
+            best_card = max(self.hand, key=lambda card: card.get_value())
+
+        # Simulate playing the chosen card
+        self.play_card(best_card, best_claim)
+        return best_card
+    
+    def play_card(self, card, claimed_cards=None):
+        if claimed_cards:
+            self.claimed_cards.extend(claimed_cards)
+            self.hand.remove(card)  # Remove the card from the hand as it's now played
+            print(f"AI claims: {', '.join(str(c) for c in claimed_cards)}")
+        else:
+            self.table.append(card)  # Put the card on the table
+            self.hand.remove(card)
+            print(f"AI plays: {card}")
+
 # Logic to see what cards add up to what
-def can_claim_card(card, table_cards):
+def cardcombos(card, table_cards):
     card_value = card.get_value()
     # Generate all possible combinations of the table cards
     for r in range(1, len(table_cards) + 1):  # r is the size of the combination
@@ -201,11 +224,16 @@ def can_claim_card(card, table_cards):
             if sum(card.get_value() for card in combination) == card_value:
                 return True, combination  # Return True with the combination of cards
     return False, []
+
 # This is a testing code to be used as a temporary input
 hand = Hand()
+table = Table()
 
 # This is a dummy hand. There will be a maximum of four cards in the hand
 hand.add_card(["2S", "10D", "10C", "AH"])
+
+# This is a dummy table
+table.add_card(["7D", "8H", "7S", "5S"])
 
 # Now, set the location for all cards after they are added
 hand.set_location("hand")
