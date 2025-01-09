@@ -6,6 +6,11 @@ For now (12.12.2024) it is getting inputs locally.
 Made by V.Dalisay on 12.12.2024
 """
 
+import numpy as np
+from collections import defaultdict
+import itertools
+
+
 # Since the input comes as a string, a king of hearts will be inputted as a KH. The first character being the rank, K, and the second character being the suit, H.
 # This class makes it so that it identifies the input as a card.
 class Cardrule:
@@ -162,14 +167,40 @@ class Table:
     #     # Use the repr method for debugging or more precise representation
     #     return f', '.join(repr(card) for card in self.cards)
 
-class KrypKasinoGame:
-    def __init__(self):
-        self.players_hands = {}
-        self.table_cards = []
-
 class KrypKasinoAI:
-    print("this is just a placeholder")
+    def __init__(self, hand, table):
+        self.hand = hand  # List of cards in the hand of the AI (list of Card objects)
+        self.table = table  # List of cards on the table
+        self.claimed_cards = [] # The 
+        self.points = 0 # The points that the AI has
+        return
 
+    def decision(self):
+        """
+        Decision logic: Play a card which will result in the least
+        amount of points earned at the end of the turn.
+        """
+        best_card = None
+        best_claim = None
+        worst_claim = float('inf') # To avoid claims that result in getting points
+
+        for card in self.hand:
+            can_claim, claim = can_claim_card(card, self.table)
+            if can_claim:
+                # Calculate how many cards would be claimed if this card is played
+                claim_size = len(claim)
+
+                
+# Logic to see what cards add up to what
+def can_claim_card(card, table_cards):
+    card_value = card.get_value()
+    # Generate all possible combinations of the table cards
+    for r in range(1, len(table_cards) + 1):  # r is the size of the combination
+        for combination in itertools.combinations(table_cards, r):
+            # If the sum of a combination matches the card value, return True
+            if sum(card.get_value() for card in combination) == card_value:
+                return True, combination  # Return True with the combination of cards
+    return False, []
 # This is a testing code to be used as a temporary input
 hand = Hand()
 
