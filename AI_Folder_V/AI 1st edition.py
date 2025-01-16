@@ -57,6 +57,7 @@ class Cardrule:
 
     # Function used to determine a card's value based on its location (hand or table).
     def get_value(self):
+        # This is the card values when the cards are in the table. Suits are irrelevant if the cards are placed in the table
         rank_values = {
             "A": 1,
             "2": 2,
@@ -110,26 +111,28 @@ class Cardrule:
         else:
             return 0  # Default if card location is not defined
 
-# This class is used to define what cards the program has in its "hand"
+# This class is used to define what cards the AI has in its "hand"
 class Hand:
     def __init__(self):
         self.cards = []  # This will store Card objects
 
+    # Function to add cards into the hand
     def add_card(self, card_string):
-        # Add one or more card strings to the hand.
+        # Adds one or more card strings to the hand.
         if isinstance(card_string, list):
-            # If the input is a list, add all cards in the list
+            # If the input is a list of cards, add all cards in the list
             for card in card_string:
                 self.cards.append(Cardrule(card))
         else:
             # If it's a single card string, add that one card
             self.cards.append(Cardrule(card_string))
 
+        # Raise an error if the robot has recieved too many cards under the dealing process
         if len(self.cards) > 4:
             raise SyntaxError("Too many cards in hand")
         
-    def set_location(self, location):
-        # Set the location for each card in the hand (hand, table, etc.).
+    def set_location(self):
+        # Set the location for each card in the hand (in this case the hand).
         for card in self.cards:
             card.location = "hand"
     
@@ -156,8 +159,8 @@ class Table:
             # If it's a single card string, add that one card
             self.cards.append(Cardrule(card_string))
         
-    def set_location(self, location):
-        # Set the location for each card in the hand (hand, table, etc.).
+    def set_location(self):
+        # Set the location for each card in the hand (in this case the table).
         for card in self.cards:
             card.location = "table"
     
@@ -198,9 +201,9 @@ class KrypKasinoAI:
                     best_card = card
                     best_claim = claim
 
-        # If no card can be claimed (safe move), just play the card with the lowest value
+        # If no card can be claimed (safe move), just play the card with the highest value
         if best_card is None:
-            best_card = max(self.hand, key=lambda card: card.get_value())
+            best_card = max(self.hand, key=lambda card: card.get_value()) # I have no clue what key=lambda card is
 
         # Simulate playing the chosen card
         self.play_card(best_card, best_claim)
@@ -287,15 +290,15 @@ table = Table() # cards on the table
 # This is a testing code to be used as a temporary input
 # This is a dummy hand. There will be a maximum of four cards in the hand
 hand.add_card(["7S", "4H", "8C", "AH"])
-
-if len(hand) == 0:
-    print("no cards in hand")
+# if len(hand) == 0:
+#     print("no cards in hand")
 
 # This is a dummy table
 table.add_card(["7D", "8H", "7S", "5S"])
 
 # Now, set the location for all cards after they are added
-hand.set_location("hand")
+# hand.set_location("hand")
+# table.set_location("table")
 
 # Print the hand using the str method. The str method is used to print out a human-readable format
 print(str(hand))  # This will use Hand.__str__, which calls Card.__str__
