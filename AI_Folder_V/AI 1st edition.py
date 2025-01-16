@@ -297,8 +297,8 @@ hand.add_card(["7S", "4H", "8C", "AH"])
 table.add_card(["7D", "8H", "7S", "5S"])
 
 # Now, set the location for all cards after they are added
-# hand.set_location("hand")
-# table.set_location("table")
+hand.set_location()
+table.set_location()
 
 # Print the hand using the str method. The str method is used to print out a human-readable format
 print(str(hand))  # This will use Hand.__str__, which calls Card.__str__
