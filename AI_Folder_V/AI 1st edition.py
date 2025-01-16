@@ -9,7 +9,7 @@ Made by V.Dalisay on 12.12.2024
 import numpy as np
 from collections import defaultdict
 import itertools
-
+import time
 
 # Since the input comes as a string, a king of hearts will be inputted as a KH. The first character being the rank, K, and the second character being the suit, H.
 # This class makes it so that it identifies the input as a card.
@@ -124,6 +124,7 @@ class Hand:
         else:
             # If it's a single card string, add that one card
             self.cards.append(Cardrule(card_string))
+
         if len(self.cards) > 4:
             raise SyntaxError("Too many cards in hand")
         
@@ -135,10 +136,11 @@ class Hand:
     def __str__(self):
         # Use the str method for printing the hand (human-readable format)
         return ", ".join(str(card) for card in self.cards)
-
+        
     # def __repr__(self):
     #     # Use the repr method for debugging or more precise representation
     #     return f', '.join(repr(card) for card in self.cards)
+
 
 class Table:
     def __init__(self):
@@ -214,6 +216,60 @@ class KrypKasinoAI:
             self.hand.remove(card)
             print(f"AI plays: {card}")
 
+class Game:
+    def __init__(self, num_players=2):
+        self.num_players = num_players  # How many players are in the game
+        self.turn = 0  # To track which player's turn it is (0 for Player 1, 1 for Player 2)
+        self.players = ["AI", "Player 2"]  # List of players (assuming AI is player 1, but you can customize this)
+        self.current_player = self.players[self.turn]  # This will hold the current player's name
+        self.hand = Hand()  # Initialize player's hand
+        self.table = Table()  # Initialize table
+
+    def play_turn(self):
+        """
+        Simulate the action for the current player's turn.
+        If it's the AI's turn, the AI will play a card.
+        If it's the human player's turn, you may want to collect input (depending on how they interact with the game).
+        """
+        print(f"{self.current_player}'s turn:")
+        
+        if self.current_player == "AI":
+            # Call the AI's decision-making function here
+            ai = KrypKasinoAI(self.hand, self.table)
+            ai.decision()
+        else:
+            # Handle human player's move (get input, etc.)
+            print("Player 2's turn: Input move manually")
+        
+        # After each turn, switch to the next player
+        self.next_turn()
+
+    def human_turn(self):
+        """
+        Monitor the table for card changes (indicating the human player has played a card).
+        """
+        initial_table_card_count = len(self.table.cards)
+        
+        print(f"Waiting for {self.current_player} to make a move...")
+        
+        while True:
+            time.sleep(2)  # Check every two seconds
+            
+            # Check the current number of cards on the table
+            current_table_card_count = len(self.table.cards)
+            
+            # If the number of cards on the table has increased, Player 1 has played a card
+            if current_table_card_count != initial_table_card_count:
+                print(f"{self.current_player} has played a card!")
+                break  # Exit the loop to switch turns
+
+
+    def switchturn(self):
+        # Switch to next player
+        self.turn = (self.turn + 1) % self.num_players # This will cycle between 0 and 1 if there are 2 players
+        self.current_player = self.players[self.turn] # Set the current player to the next one
+        print(f"Next turn: {self.current_player}")
+
 # Logic to see what cards add up to what
 def cardcombos(card, table_cards):
     card_value = card.get_value()
@@ -225,12 +281,15 @@ def cardcombos(card, table_cards):
                 return True, combination  # Return True with the combination of cards
     return False, []
 
-# This is a testing code to be used as a temporary input
-hand = Hand()
-table = Table()
+hand = Hand() # AI's hand 
+table = Table() # cards on the table
 
+# This is a testing code to be used as a temporary input
 # This is a dummy hand. There will be a maximum of four cards in the hand
-hand.add_card(["2S", "10D", "10C", "AH"])
+hand.add_card(["7S", "4H", "8C", "AH"])
+
+if len(hand) == 0:
+    print("no cards in hand")
 
 # This is a dummy table
 table.add_card(["7D", "8H", "7S", "5S"])
