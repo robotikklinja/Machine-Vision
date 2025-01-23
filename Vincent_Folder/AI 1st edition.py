@@ -7,9 +7,11 @@ Made by V.Dalisay on 12.12.2024
 """
 
 import numpy as np
+import tensorflow as tf
 from collections import defaultdict
 import itertools
 import time
+import random
 
 # Since the input comes as a string, a king of hearts will be inputted as a KH. The first character being the rank, K, and the second character being the suit, H.
 # This class makes it so that it identifies the input as a card.
@@ -174,47 +176,151 @@ class KrypKasinoAI:
     def __init__(self, hand, table):
         self.hand = hand  # List of cards in the hand of the AI (list of Card objects)
         self.table = table  # List of cards on the table
-        self.claimed_cards = [] # Array of the cards claimed by the AI.
-        self.points = 0 # The points that the AI has
-        return
+        self.claimed_cards = []  # Array of the cards claimed by the AI.
+        self.points = 0  # The points that the AI has
+        # Initialize epsilon here (typically a value between 0 and 1)
+        self.epsilon = 0.1  # Exploration rate (e.g., 10% of the time the AI explores)
+        # **Initialize the learning rate here**
+        self.learning_rate = 0.01  # Learning rate for the Adam optimizer
+        # **Initialize the model here**
+        self.model = self.build_model()  # Call the build_model function to create the model
+
+    def build_model(self):
+        # Define the input shape (you'll need to adjust this based on your state representation)
+        input_shape = (len(self.get_state()),) 
+        model = tf.keras.Sequential([
+        tf.keras.layers.Dense(64, activation='relu', input_shape=input_shape),
+        tf.keras.layers.Dense(32, activation='relu'),
+        tf.keras.layers.Dense(len(self.hand.cards), activation='linear') 
+        ])
+        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.learning_rate), loss='mse')
+        return model
+
+    def get_state(self):
+        # Represent the game state as a numerical feature vector
+        state = [
+            # Hand features
+            len(self.hand.cards), 
+            # Table features
+            len(self.table.cards),
+            # Sum of card values in hand
+            sum(card.get_value() for card in self.hand.cards), 
+            # Sum of card values on table
+            sum(card.get_value() for card in self.table.cards),
+            # Check for potential captures (e.g., cards with the same rank on the table)
+            1 if any(card.rank in [c.rank for c in self.table.cards] for card in self.hand.cards) else 0
+        ]
+        return state
 
     def decision(self):
-        """
-        Decision logic: Play a card which will result in the least
-        amount of points earned at the end of the turn.
-        """
-        # Check if the AI has any card left
-        if not self.hand.cards:
-            print("AI has no cards to play!")
-            return None
-        best_card = None
-        best_claim = None
-        worst_claim = float('inf') # To avoid claims that result in getting points
+        if np.random.rand() < self.epsilon:  # Explore (choose a random action)
+            return random.choice(self.hand.cards)
 
-        for card in self.hand:
-            # Pass self.table.cards (the list of cards on the table)
-            can_claim, claim = cardcombos(card, self.table.cards)
-            if can_claim:
-                # Calculate how many cards would be claimed if this card is played
-                claim_size = len(claim)
+        state = self.get_state()
+        state_tensor = np.array([state])
+        q_values = self.model.predict(state_tensor)[0]
 
-                # AI should avoid claiming a card that would result in a lot of claimed cards
-                if claim_size < worst_claim:
-                    worst_claim = claim_size
-                    best_card = card
-                    best_claim = claim
+        # Choose the action with the highest predicted Q-value
+        action_index = np.argmax(q_values)
+        return self.hand.cards[action_index]
 
-        # If no card can be claimed (safe move), just play the card with the highest value
-        if best_card is None:
-            best_card = max(self.hand, key=lambda card: card.get_value()) # I have no clue what key=lambda card is
+    def play_card(self, card, claimed_cards=None):
+        # Play the card first
+        self.table.add_card(str(card))  # Add the card to the table
+        self.hand.cards.remove(card)  # Remove the card from the hand's cards list
+        print(f"AI plays: {card}")
 
-        # Simulate playing the chosen card
-        self.play_card(best_card, best_claim)
+        # Only handle claiming cards if a valid combination was found
+        if claimed_cards:
+            self.claimed_cards.extend(claimed_cards)
+            print(f"AI claims: {', '.join(str(c) for c in claimed_cards)}")
+        else:
+            print(f"AI claims no cards.")
 
-        # Print the AI's hand after making the decision
-        print(f"AI's hand after the decision: {self.hand}")
+        # Store the experience in the replay buffer
+        old_state = self.get_state() 
+        action_index = self.hand.cards.index(card)  # Get the index of the chosen action
+        reward = self.calculate_reward(claimed_cards)  # Calculate reward (e.g., -len(claimed_cards))
+        new_state = self.get_state() 
+        self.store_experience((old_state, action_index, reward, new_state))
 
-        return best_card
+    def store_experience(self, experience):
+        self.experience_replay_buffer.append(experience)
+        if len(self.experience_replay_buffer) > self.experience_replay_buffer_size:
+            self.experience_replay_buffer.pop(0)
+
+    def train_model(self):
+        if len(self.experience_replay_buffer) < 32:  # Adjust batch size as needed
+            return
+
+        batch = random.sample(self.experience_replay_buffer, 32)
+        states, actions, rewards, next_states = zip(*batch)
+        states = np.array(states)
+        actions = np.array(actions)
+        rewards = np.array(rewards)
+        next_states = np.array(next_states)
+
+        # Predict Q-values for current and next states
+        q_values = self.model.predict(states)
+        next_q_values = self.model.predict(next_states)
+
+        # Calculate target Q-values
+        target_q_values = rewards + self.gamma * np.max(next_q_values, axis=1)
+
+        # Update Q-values for the taken actions
+        for i in range(len(batch)):
+            q_values[i][actions[i]] = target_q_values[i]
+
+        # Train the model
+        self.model.fit(states, q_values, epochs=1, verbose=0) 
+
+# ... (Game class and other functions remain the same) ...
+
+# class KrypKasinoAI:
+#     def __init__(self, hand, table):
+#         self.hand = hand  # List of cards in the hand of the AI (list of Card objects)
+#         self.table = table  # List of cards on the table
+#         self.claimed_cards = [] # Array of the cards claimed by the AI.
+#         self.points = 0 # The points that the AI has
+#         return
+
+#     def decision(self):
+#         """
+#         Decision logic: Play a card which will result in the least
+#         amount of points earned at the end of the turn.
+#         """
+#         # Check if the AI has any card left
+#         if not self.hand.cards:
+#             print("AI has no cards to play!")
+#             return None
+#         best_card = None
+#         best_claim = None
+#         worst_claim = float('inf') # To avoid claims that result in getting points
+
+#         for card in self.hand:
+#             # Pass self.table.cards (the list of cards on the table)
+#             can_claim, claim = cardcombos(card, self.table.cards)
+#             if can_claim:
+#                 # Calculate how many cards would be claimed if this card is played
+#                 claim_size = len(claim)
+
+#                 # AI should avoid claiming a card that would result in a lot of claimed cards
+#                 if claim_size < worst_claim:
+#                     worst_claim = claim_size
+#                     best_card = card
+#                     best_claim = claim
+
+#         # If no card can be claimed (safe move), just play the card with the highest value
+#         if best_card is None:
+#             best_card = max(self.hand, key=lambda card: card.get_value()) # I have no clue what key=lambda card is
+
+#         # Simulate playing the chosen card
+#         self.play_card(best_card, best_claim)
+
+#         # Print the AI's hand after making the decision
+#         print(f"AI's hand after the decision: {self.hand}")
+
+#         return best_card
     
     def play_card(self, card, claimed_cards=None):
         # Play the card first
