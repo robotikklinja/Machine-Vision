@@ -1,0 +1,23 @@
+To-do and have-done list for AI
+
+1. Make game logic (here as of 23.01.2025)
+    
+    I. (Done)
+    Import libraries. Make classes for cards in the hand and on the table.
+    
+    II. (Done)
+    Store all the card objects to either the hand or the table class via an array
+    of strings of the card objects. Then set their location to the hand or the table.
+    Also make it so the code raises an error if the robot has more than 4 cards in its hand
+        
+    III. (Done)
+    Create class Cardrule to identify the arrays of cards from the table or hand to assign a value to it.
+
+    IV. (Done)
+    Create dictionaries for the card values and assign the values of the cards depending
+    on if a card is on the table or in the hand.
+
+    V. (Done)
+    Create some kind of simple decision making for the AI
+
+2. Make the actual AI to make the decision
