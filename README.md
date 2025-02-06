@@ -14,11 +14,11 @@ Ressurser:
 	Finnes i Resources-branchen
   
 ## Steg for å fullføre prosjektet:
-1. Lære the basics of OpenCV
-2. Kunne lage en kode som kan gjenkjenne kortene (nesten ferdig)
+1. Lære the basics of OpenCV (✓)
+2. Kunne lage en kode som kan gjenkjenne kortene (✓*)
 3. Bruk gjenkjenningen av kort til å lage informasjon til AI-en ved bruk av ROI (I tid og/eller sted)
 4. Lære modbus (✓)
-5. Lære, og lage en AI-lignende program for å få roboten til å bevege seg for å spille kort
+5. Lære, og lage en AI-lignende program for å få en UR5 robot til å spille kort
 6. Koble OpenCV-koden til AI, og koble det til UR5-en via modbus
 7. Legg til sikkerhet der det trenks.
 
