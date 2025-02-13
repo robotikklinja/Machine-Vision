@@ -1,5 +1,5 @@
 """
-This code is supposed to be the AI for the card game KrypKasino.
+This code is supposed to be the algorithm for the card game KrypKasino.
 This is supposed to be coded to take inputs from the OpenCV program made by B.Stokke.
 For now (12.12.2024) it is getting inputs locally.
 

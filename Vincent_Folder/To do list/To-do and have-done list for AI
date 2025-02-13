@@ -1,4 +1,4 @@
-To-do and have-done list for AI
+To-do and have-done list for algorithm
 
 1. Make game logic (here as of 23.01.2025)
     
@@ -18,6 +18,6 @@ To-do and have-done list for AI
     on if a card is on the table or in the hand.
 
     V. (Done)
-    Create some kind of simple decision making for the AI
+    Create some kind of simple decision making for the algorithm
 
-2. Make the actual AI to make the decision
+2. Make the actual algorithm to make the decision
