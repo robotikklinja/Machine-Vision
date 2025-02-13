@@ -17,7 +17,10 @@ To-do and have-done list for algorithm
     Create dictionaries for the card values and assign the values of the cards depending
     on if a card is on the table or in the hand.
 
-    V. (Done)
+2. Make the actual algorithm to make the decision
+
+    I. (WIP)
     Create some kind of simple decision making for the algorithm
 
-2. Make the actual algorithm to make the decision
+    II.
+    Work on making it better
