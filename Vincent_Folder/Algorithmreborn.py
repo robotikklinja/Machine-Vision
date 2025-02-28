@@ -10,9 +10,9 @@ Made by V.Dalisay on 12.12.2024
 
 import numpy as np
 from collections import defaultdict
-import itertools
+import copy # to create a copy of the game state to simulate moves
 import time
-import random
+import itertools
 
 # Since the input comes as a string, a king of hearts will be inputted as a KH. The first character being the rank, K, and the second character being the suit, H.
 # This class makes it so that it identifies the input as a card.
@@ -196,116 +196,103 @@ class KrypKasinoAlgorithm:
         ]
         return state
     
-    def play_card(self, card, claimed_cards=None):
-        # Play the card first
-        self.table.add_card(str(card))  # Add the card to the table
-        self.hand.cards.remove(card)  # Remove the card from the hand's cards list
-        print(f"AI plays: {card}")
+    def best_move(self):
+        best_play = None
+        best_score = float('-inf')
 
-        # Only handle claiming cards if a valid combination was found
-        if claimed_cards:
-            self.claimed_cards.extend(claimed_cards)
-            print(f"AI claims: {', '.join(str(c) for c in claimed_cards)}")
-        else:
-            print(f"AI claims no cards.")
+# This function is to be used to simulate the game so that the algorithm knows what card to play.
+# Therefore i will return best_play for use.
 
-        # # Store the experience in the replay buffer
-        # old_state = self.get_state() 
-        # action_index = self.hand.cards.index(card)  # Get the index of the chosen action
-        # reward = self.calculate_reward(claimed_cards)  # Calculate reward (e.g., -len(claimed_cards))
-        # new_state = self.get_state() 
-        # self.store_experience((old_state, action_index, reward, new_state))
+        for playcard in (self.hand.cards):
+            # Simulate the game state by making a deep copy of both the cards in the hand and the cards in the table.
+            simulate_hand = copy.deepcopy(self.hand)
+            simulate_table = copy.deepcopy(self.table)
 
-    # def store_experience(self, experience):
-    #     self.experience_replay_buffer.append(experience)
-    #     if len(self.experience_replay_buffer) > self.experience_replay_buffer_size:
-    #         self.experience_replay_buffer.pop(0)
+            # For every card from the hand check if
+            for i, card in enumerate(simulate_hand.cards):
+                if card.rank == playcard.rank and card.suit == playcard.suit:
+                    del simulate_hand.cards[i]
+                    break
 
-    # def train_model(self):
-    #     if len(self.experience_replay_buffer) < 32:  # Adjust batch size as needed
-    #         return
+            # simulate adding the card to the table and turn it into a string
+            simulate_table.add_card(str(playcard))
 
-    #     batch = random.sample(self.experience_replay_buffer, 32)
-    #     states, actions, rewards, next_states = zip(*batch)
-    #     states = np.array(states)
-    #     actions = np.array(actions)
-    #     rewards = np.array(rewards)
-    #     next_states = np.array(next_states)
+            print(f"Algorithm simulates: {playcard}")
+            print(f"Algorithm's hand after the play: {simulate_hand}")
 
-    #     # Predict Q-values for current and next states
-    #     q_values = self.model.predict(states)
-    #     next_q_values = self.model.predict(next_states)
-
-    #     # Calculate target Q-values
-    #     target_q_values = rewards + self.gamma * np.max(next_q_values, axis=1)
-
-    #     # Update Q-values for the taken actions
-    #     for i in range(len(batch)):
-    #         q_values[i][actions[i]] = target_q_values[i]
-
-    #     # Train the model
-    #     self.model.fit(states, q_values, epochs=1, verbose=0) 
-
-# ... (Game class and other functions remain the same) ...
-
-# class KrypKasinoAI:
-#     def __init__(self, hand, table):
-#         self.hand = hand  # List of cards in the hand of the AI (list of Card objects)
-#         self.table = table  # List of cards on the table
-#         self.claimed_cards = [] # Array of the cards claimed by the AI.
-#         self.points = 0 # The points that the AI has
-#         return
-
-#     def decision(self):
-#         """
-#         Decision logic: Play a card which will result in the least
-#         amount of points earned at the end of the turn.
-#         """
-#         # Check if the AI has any card left
-#         if not self.hand.cards:
-#             print("AI has no cards to play!")
-#             return None
-#         best_card = None
-#         best_claim = None
-#         worst_claim = float('inf') # To avoid claims that result in getting points
-
-#         for card in self.hand:
-#             # Pass self.table.cards (the list of cards on the table)
-#             can_claim, claim = cardcombos(card, self.table.cards)
-#             if can_claim:
-#                 # Calculate how many cards would be claimed if this card is played
-#                 claim_size = len(claim)
-
-#                 # AI should avoid claiming a card that would result in a lot of claimed cards
-#                 if claim_size < worst_claim:
-#                     worst_claim = claim_size
-#                     best_card = card
-#                     best_claim = claim
-
-#         # If no card can be claimed (safe move), just play the card with the highest value
-#         if best_card is None:
-#             best_card = max(self.hand, key=lambda card: card.get_value()) # I have no clue what key=lambda card is
-
-#         # Simulate playing the chosen card
-#         self.play_card(best_card, best_claim)
-
-#         # Print the AI's hand after making the decision
-#         print(f"AI's hand after the decision: {self.hand}")
-
-#         return best_card
+        return best_play
     
-    def play_card(self, card, claimed_cards=None):
-        # Play the card first
-        self.table.add_card(str(card))  # Add the card to the table
-        self.hand.cards.remove(card)  # Remove the card from the hand's cards list
-        print(f"AI plays: {card}")
-    
-        # Only handle claiming cards if a valid combination was found
-        if claimed_cards:
-            self.claimed_cards.extend(claimed_cards)
-            print(f"AI claims: {', '.join(str(c) for c in claimed_cards)}")
-        else:
-            print(f"AI claims no cards.")
+    def cardpoints(self):
+        cardpoint = {
+        "AS": 1.173076923,
+        "2S": 1.173076923,
+        "3S": 0.173076923,
+        "4S": 0.173076923,
+        "5S": 0.173076923,
+        "6S": 0.173076923,
+        "7S": 0.173076923,
+        "8S": 0.173076923,
+        "9S": 0.173076923,
+        "10S": 0.173076923,
+        "JS": 0.173076923,
+        "QS": 0.173076923,
+        "KS": 0.173076923,
+        "AC": 1.019230769,
+        "2C": 0.019230769,
+        "3C": 0.019230769,
+        "4C": 0.019230769,
+        "5C": 0.019230769,
+        "6C": 0.019230769,
+        "7C": 0.019230769,
+        "8C": 0.019230769,
+        "9C": 0.019230769,
+        "10C": 0.019230769,
+        "JC": 0.019230769,
+        "QC": 0.019230769,
+        "KC": 0.019230769,
+        "AD": 1.019230769,
+        "2D": 0.019230769,
+        "3D": 0.019230769,
+        "4D": 0.019230769,
+        "5D": 0.019230769,
+        "6D": 0.019230769,
+        "7D": 0.019230769,
+        "8D": 0.019230769,
+        "9D": 0.019230769,
+        "10D": 2.019230769,
+        "JD": 0.019230769,
+        "QD": 0.019230769,
+        "KD": 0.019230769,
+        "AH": 1.019230769,
+        "2H": 0.019230769,
+        "3H": 0.019230769,
+        "4H": 0.019230769,
+        "5H": 0.019230769,
+        "6H": 0.019230769,
+        "7H": 0.019230769,
+        "8H": 0.019230769,
+        "9H": 0.019230769,
+        "10H": 0.019230769,
+        "JH": 0.019230769,
+        "QH": 0.019230769,
+        "KH": 0.019230769,
+        }
+
+        return cardpoint
+
+
+    # def play_card(self, card, claimed_cards=None):
+    #     # Play the card first
+    #     self.table.add_card(str(card))  # Add the card to the table
+    #     self.hand.cards.remove(card)  # Remove the card from the hand's cards list
+    #     print(f"AI plays: {card}")
+
+    #     # Only handle claiming cards if a valid combination was found
+    #     if claimed_cards:
+    #         self.claimed_cards.extend(claimed_cards)
+    #         print(f"AI claims: {', '.join(str(c) for c in claimed_cards)}")
+    #     else:
+    #         print(f"AI claims no cards.")
 
 class Game:
     def __init__(self, num_players=2):
@@ -364,19 +351,12 @@ class Game:
 # Logic to see what cards add up to what
 def cardcombos(card, table_cards):
     card_value = card.get_value()  # Get the value of the card being played
-    claim = []
+    all_combinations = [] # Store all valid combinations in an array
 
-    # Generate all possible combinations of the table cards
-    
-    # After finding a valid combination, check for all cards with the same rank on the table
-    # Add all cards of the same rank (like 7s) to the claim
-
-    # Add the matching rank cards to the claim, ensuring no duplicates
-
-
-    # Only claim the card if we found a valid combination (not just the played card)
-
-    return False, []  # Return False if no valid claim was found
+    for r in range(1, len(table_cards) + 1):
+        for combination in itertools.combinations(table_cards, r):
+            if sum(c.get_value() for c in combination) == card_value:
+                all_combinations.append(list(combination))
 
 hand = Hand() # AI's hand 
 table = Table() # cards on the table
@@ -384,7 +364,7 @@ table = Table() # cards on the table
 # This is a testing code to be used as a temporary input
 # This is a dummy hand. There will be a maximum of four cards in the hand
 # hand.add_card(["7S", "4H", "8C", "AH"])
-hand.add_card(["7D", "5S"])
+hand.add_card(["7D", "5S", "2D"])
 # This is a dummy table
 # table.add_card(["7D", "8H", "7H", "5S"])
 table.add_card(["7H","8H"])
@@ -395,7 +375,7 @@ hand.set_location()
 table.set_location()
 
 # Print the hand using the str method. The str method is used to print out a human-readable format
-print("AI hand: ", str(hand))  # This will use Hand.__str__, which calls Card.__str__
+print("Algorithm hand: ", str(hand))  # This will use Hand.__str__, which calls Card.__str__
 
 # Get values of all cards in the hand
 # for card in hand.cards:
@@ -403,4 +383,5 @@ print("AI hand: ", str(hand))  # This will use Hand.__str__, which calls Card.__
 
 # Initialize AI and make a decision
 algorithm = KrypKasinoAlgorithm(hand, table)
-# best_card = algorithm.decision()
+# Call best_move() to get the best card
+best_card = algorithm.best_move()
