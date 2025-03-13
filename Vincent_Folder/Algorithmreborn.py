@@ -1,5 +1,5 @@
 """
-This code is supposed to be an AI for the card game KrypKasino.
+This code is supposed to be an CPU for the card game KrypKasino.
 This is supposed to be coded to take inputs from the OpenCV program made by B.Stokke.
 For now (12.12.2024) it is getting inputs locally.
 
@@ -108,7 +108,7 @@ class Cardrule:
             return self.special_hand_values.get(card_key, self.hand_rank_values.get(self.rank, 0))
         return 0  # Default value if location is not defined
 
-# This class is used to define what cards the AI has in its "hand"
+# This class is used to define what cards the CPU has in its "hand"
 class Hand:
     def __init__(self):
         self.cards = []  # This will store Card objects
@@ -175,10 +175,10 @@ class Table:
 
 class KrypKasinoAlgorithm:
     def __init__(self, hand, table):
-        self.hand = hand  # List of cards in the hand of the AI (list of Card objects)
+        self.hand = hand  # List of cards in the hand of the CPU (list of Card objects)
         self.table = table  # List of cards on the table
-        self.claimed_cards = []  # Array of the cards claimed by the AI.
-        self.points = 0  # The points that the AI has
+        self.claimed_cards = []  # Array of the cards claimed by the CPU.
+        self.points = 0 # The points that the CPU has
 
     def get_state(self):
         # Represent the game state as a numerical feature vector
@@ -197,8 +197,12 @@ class KrypKasinoAlgorithm:
         return state
     
     def best_move(self):
+        # Used to define what card to play
         best_play = None
-        best_score = float('-inf')
+        # Used to compare points from other cards played.
+        best_score = float('inf')
+        # To see what combination is the best
+        best_combination = None
 
 # This function is to be used to simulate the game so that the algorithm knows what card to play.
 # Therefore i will return best_play for use.
@@ -217,9 +221,26 @@ class KrypKasinoAlgorithm:
             # simulate adding the card to the table and turn it into a string
             simulate_table.add_card(str(playcard))
 
+            # get all possible combinations of the claimable cards based on the move
+            all_combos = cardcombos(playcard, simulate_table.cards, self)
+
+            # Go through all combinations and choose the best
+            for combination in all_combos:
+                
+                # Remove the claimed cards.
+                for claimed_card in combination:
+                    for i, table_card in enumerate(simulate_table.cards):
+                        if table_card.rank == claimed_card.rank and table_card.suit == claimed_card.suit:
+                            del simulate_table.cards[i]
+                            break
+
             print(f"Algorithm simulates: {playcard}")
             print(f"Algorithm's hand after the play: {simulate_hand}")
+            print()
 
+
+        for i in range(len(hand)):
+            score = wombo_combo_point[i]
         return best_play
     
     def cardpoints(self):
@@ -278,27 +299,26 @@ class KrypKasinoAlgorithm:
         "KH": 0.019230769,
         }
 
-        return cardpoint
-
+        return cardpoint.get(self, "CARD DOES NOT EGGSIST")
 
     # def play_card(self, card, claimed_cards=None):
     #     # Play the card first
     #     self.table.add_card(str(card))  # Add the card to the table
     #     self.hand.cards.remove(card)  # Remove the card from the hand's cards list
-    #     print(f"AI plays: {card}")
+    #     print(f"CPU plays: {card}")
 
     #     # Only handle claiming cards if a valid combination was found
     #     if claimed_cards:
     #         self.claimed_cards.extend(claimed_cards)
-    #         print(f"AI claims: {', '.join(str(c) for c in claimed_cards)}")
+    #         print(f"CPU claims: {', '.join(str(c) for c in claimed_cards)}")
     #     else:
-    #         print(f"AI claims no cards.")
+    #         print(f"CPU claims no cards.")
 
 class Game:
     def __init__(self, num_players=2):
         self.num_players = num_players  # How many players are in the game
         self.turn = 0  # To track which player's turn it is (0 for Player 1, 1 for Player 2)
-        self.players = ["AI", "Player 2"]  # List of players (assuming AI is player 1, but you can customize this)
+        self.players = ["CPU", "Player 2"]  # List of players (assuming CPU is player 1, but you can customize this)
         self.current_player = self.players[self.turn]  # This will hold the current player's name
         self.hand = Hand()  # Initialize player's hand
         self.table = Table()  # Initialize table
@@ -306,15 +326,16 @@ class Game:
     def play_turn(self):
         """
         Simulate the action for the current player's turn.
-        If it's the AI's turn, the AI will play a card.
+        If it's the CPU's turn, the CPU will play a card.
         If it's the human player's turn, you may want to collect input (depending on how they interact with the game).
         """
         print(f"{self.current_player}'s turn:")
         
-        if self.current_player == "AI":
-            # Call the AI's decision-making function here
-            ai = KrypKasinoAI(self.hand, self.table)
-            ai.decision()
+        if self.current_player == "CPU":
+            # Call the CPU's decision-making function here
+            CPU = KrypKasinoAlgorithm(self.hand, self.table)
+            CPU.decision()
+
         else:
             # Handle human player's move (get input, etc.)
             print("Player 2's turn: Input move manually")
@@ -322,7 +343,7 @@ class Game:
         # After each turn, switch to the next player
         self.next_turn()
 
-    def human_turn(self):
+    def ops_turn(self):
         """
         Monitor the table for card changes (indicating the human player has played a card).
         """
@@ -341,7 +362,6 @@ class Game:
                 print(f"{self.current_player} has played a card!")
                 break  # Exit the loop to switch turns
 
-
     def switchturn(self):
         # Switch to next player
         self.turn = (self.turn + 1) % self.num_players # This will cycle between 0 and 1 if there are 2 players
@@ -349,16 +369,34 @@ class Game:
         print(f"Next turn: {self.current_player}")
 
 # Logic to see what cards add up to what
-def cardcombos(card, table_cards):
+def cardcombos(card, table_cards, CPU_instance):
     card_value = card.get_value()  # Get the value of the card being played
     all_combinations = [] # Store all valid combinations in an array
 
+    # For every card in the hand check what combinations there are that match the value of the card "played"
     for r in range(1, len(table_cards) + 1):
         for combination in itertools.combinations(table_cards, r):
             if sum(c.get_value() for c in combination) == card_value:
-                all_combinations.append(list(combination))
+                all_combinations.append(list(combination)) 
 
-hand = Hand() # AI's hand 
+    # find the value of each combo and set the val in an array
+    wombo_combo_point = []
+    for combination in all_combinations: # g throught very combo 
+        combo_point = 0.0 # start val for value of combo
+        for card in combination: # get the value of each of the cards in the combos
+            cardkey = str(card) # make sure it is a str and the OG doesn't change
+            card_point = CPU_instance.cardpoints().get(cardkey, 0.0) # Get the card point from the cardpoints dictionary.
+            combo_point += card_point # add the cards value to the combo
+        wombo_combo_point.append(combo_point) # add the value of the combo in a varibale
+    wombo_combo_point.sort() # sort form small too big
+
+    combined_data = list(zip(wombo_combo_point, all_combinations))
+    combined_data.sort()
+    sorted_points, sorted_combinations = zip(*combined_data) if combined_data else ([], [])
+
+    return list(sorted_combinations), list(sorted_points)
+
+hand = Hand() # CPU's hand 
 table = Table() # cards on the table
 
 # This is a testing code to be used as a temporary input
@@ -381,7 +419,7 @@ print("Algorithm hand: ", str(hand))  # This will use Hand.__str__, which calls 
 # for card in hand.cards:
 #     print(f"{card}: Value = {card.get_value()}")
 
-# Initialize AI and make a decision
+# Initialize CPU and make a decision
 algorithm = KrypKasinoAlgorithm(hand, table)
 # Call best_move() to get the best card
 best_card = algorithm.best_move()

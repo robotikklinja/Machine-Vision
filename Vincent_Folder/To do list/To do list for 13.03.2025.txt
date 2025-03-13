@@ -1,0 +1,12 @@
+To do for 13.03.2025
+
+    Display what cards make up what combo when playing a card in a simulated play
+
+    Display a score for every card in the combo (the card that you would get) in the simulation
+        (cardcombos function)
+
+    Compare the scores to each other
+
+    Make the best play the move that gives the CPU the least amount of points
+
+    Announce that move and try to put that so that the ModBus can get that move as an input it can use
