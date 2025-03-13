@@ -222,10 +222,10 @@ class KrypKasinoAlgorithm:
             simulate_table.add_card(str(playcard))
 
             # get all possible combinations of the claimable cards based on the move
-            all_combos = cardcombos(playcard, simulate_table.cards, self)
+            combo_index, combo_points = cardcombos(playcard, simulate_table.cards, self)
 
             # Go through all combinations and choose the best
-            for combination in all_combos:
+            for combination in combo_index:
                 
                 # Remove the claimed cards.
                 for claimed_card in combination:
@@ -240,7 +240,7 @@ class KrypKasinoAlgorithm:
 
 
         for i in range(len(hand)):
-            score = wombo_combo_point[i]
+            score = wombo_combo_point
         return best_play
     
     def cardpoints(self):
@@ -394,7 +394,7 @@ def cardcombos(card, table_cards, CPU_instance):
     combined_data.sort()
     sorted_points, sorted_combinations = zip(*combined_data) if combined_data else ([], [])
 
-    return list(sorted_combinations), list(sorted_points)
+    return list(sorted_combinations), list(sorted_points), wombo_combo_point
 
 hand = Hand() # CPU's hand 
 table = Table() # cards on the table
