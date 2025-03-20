@@ -197,8 +197,8 @@ class KrypKasinoAlgorithm:
         return state
     
     def best_move(self):
-        # Used to define what card to play
-        best_play = None
+        # The variable is an action that says the best move (None is not the best move)
+        best_play = None # Used to find out what card to play
         # Used to compare points from other cards played.
         best_score = float('inf')
         # To see what combination is the best
@@ -241,6 +241,7 @@ class KrypKasinoAlgorithm:
 
         for i in range(len(hand)):
             score = wombo_combo_point
+
         return best_play
     
     def cardpoints(self):
@@ -377,19 +378,20 @@ def cardcombos(card, table_cards, CPU_instance):
     for r in range(1, len(table_cards) + 1):
         for combination in itertools.combinations(table_cards, r):
             if sum(c.get_value() for c in combination) == card_value:
-                all_combinations.append(list(combination)) 
+                all_combinations.append(list(combination)) # Put every combination in a list of all combinations
 
-    # find the value of each combo and set the val in an array
+    # find the value of each combo and set the val in an array:
     wombo_combo_point = []
-    for combination in all_combinations: # g throught very combo 
+    for combination in all_combinations: # go through every combination
         combo_point = 0.0 # start val for value of combo
         for card in combination: # get the value of each of the cards in the combos
             cardkey = str(card) # make sure it is a str and the OG doesn't change
             card_point = CPU_instance.cardpoints().get(cardkey, 0.0) # Get the card point from the cardpoints dictionary.
             combo_point += card_point # add the cards value to the combo
-        wombo_combo_point.append(combo_point) # add the value of the combo in a varibale
-    wombo_combo_point.sort() # sort form small too big
+        wombo_combo_point.append(combo_point) # add the value of the combination in an array
+    wombo_combo_point.sort() # sort from small too big
 
+    # note to self: figure this out i forgot what the hell this does
     combined_data = list(zip(wombo_combo_point, all_combinations))
     combined_data.sort()
     sorted_points, sorted_combinations = zip(*combined_data) if combined_data else ([], [])
