@@ -204,8 +204,8 @@ class KrypKasinoAlgorithm:
         # To see what combination is the best
         best_combination = None
 
-# This function is to be used to simulate the game so that the algorithm knows what card to play.
-# Therefore i will return best_play for use.
+        # This function is to be used to simulate the game so that the algorithm knows what card to play.
+        # Therefore i will return best_play for use.
 
         for playcard in (self.hand.cards):
             # Simulate the game state by making a deep copy of both the cards in the hand and the cards in the table.
@@ -240,8 +240,8 @@ class KrypKasinoAlgorithm:
 
 
         for i in range(len(hand)):
-            score = wombo_combo_point
-
+            cardcombos.wombo_combo_point
+            
         return best_play
     
     def cardpoints(self):
