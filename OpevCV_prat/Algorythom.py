@@ -222,24 +222,29 @@ while True:
 
     # If it is my turn 
     if turn:
-        if len(deck) == 4:
-            pass
+        if len(deck) == 4: # if the only 4 cards left that are unknow it is in the ops hand
+            pass 
 
         # if we are in the last round of play 
         if len(deck) == 0:
             if len(my_hand) and len(op_hand) == 0:
                 print("The game is over. Time to start counting points ...")
-            
-
         elif len(my_hand) == 1: # there is only one card left in hand
             print(f"I place down {my_hand[0]}") # place down the last card in hand
-        else:
-            if "10D" in my_hand:
+        elif len(my_hand) <= 4:
+            if "10D" in my_hand and (16 not in combos(board)):
                 print("I place down 10 of Diamond")
                 my_hand.remove("10D") # "10"+"D" = "10D"
                 board.append("10D") # Add 10D on board
-
-        trun = False # always change the turn after
+            elif "2S" in my_hand and (15 not in combos(board)):
+                print("I place down 2 of Spades")
+                my_hand.remove("2S") # "2"+"S" = "2S"
+                board.append("2S") # Add 2S on board
+            elif "AS" in my_hand and (14 not in combos(board)):
+                print("I place down Ace of Spades")
+                my_hand.remove("AS") # "2"+"S" = "2S"
+                board.append("AS") # Add 2S on board
+        trun = False # always change the turn after plassing down a card
         
     # if it is the op's turn        
     elif not turn:
