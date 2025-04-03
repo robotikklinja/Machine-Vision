@@ -1,4 +1,4 @@
-To-do and have-done list for AI
+To-do and have-done list for algorithm
 
 1. Make game logic (here as of 23.01.2025)
     
@@ -17,7 +17,19 @@ To-do and have-done list for AI
     Create dictionaries for the card values and assign the values of the cards depending
     on if a card is on the table or in the hand.
 
-    V. (Done)
-    Create some kind of simple decision making for the AI
+    V. (Done?)
+    Make it so that the algorithm knows when to play its turn
 
-2. Make the actual AI to make the decision
+2. Make the actual algorithm to make the decision
+
+    I. (WIP)
+    Create some kind of simple decision making for the algorithm
+
+        i. make it simulate playing the card (here)
+    
+        ii. evaluate the outcome of each simulation
+    
+        iii. make the move on the real thing
+
+    II.
+    Work on making it better
