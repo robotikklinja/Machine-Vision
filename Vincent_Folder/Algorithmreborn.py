@@ -3,7 +3,7 @@ This code is supposed to be an CPU for the card game KrypKasino.
 This is supposed to be coded to take inputs from the OpenCV program made by B.Stokke.
 For now (12.12.2024) it is getting inputs locally.
 
-As of (13.02.2025) it will use an algorithm instead. Further changes to be made.
+As of (13.02.2025) it will use an algorithm instead.
 
 Made by V.Dalisay on 12.12.2024
 """
@@ -12,7 +12,7 @@ import numpy as np
 from collections import defaultdict
 import copy # to create a copy of the game state to simulate moves
 import time
-import itertools
+import itertools # for combinations
 
 # Since the input comes as a string, a king of hearts will be inputted as a KH. The first character being the rank, K, and the second character being the suit, H.
 # This class makes it so that it identifies the input as a card.
@@ -48,12 +48,10 @@ class Cardrule:
         "J": 11,
         "Q": 12,
         "K": 13,
-        # "2S": 15, # The 2 of spades has a value of 15 in the player's hand
-        # "10D": 16 # The 10 of diamonds has a value of 16
     }
     special_hand_values = {
-        "2S": 15,
-        "10D": 16
+        "2S": 15, # The 2 of Spades has a value of 15 in the player's hand
+        "10D": 16 # The 10 of diamonds has a value of 16
     }
     
     # This function makes it so that every input is broken down into the rank and suit.
@@ -145,7 +143,7 @@ class Hand:
     #     # Use the repr method for debugging or more precise representation
     #     return f', '.join(repr(card) for card in self.cards)
 
-
+# Class to define the cards on the table
 class Table:
     def __init__(self):
         self.cards = []  # This will store Card objects
@@ -170,10 +168,20 @@ class Table:
         return ", ".join(str(card) for card in self.cards)
 
     # def __repr__(self):
-    #     # Use the repr method for debugging or more precise representation
+    #     # The repr method is for debugging or more precise representation
     #     return f', '.join(repr(card) for card in self.cards)
 
-class KrypKasinoAlgorithm:
+"""
+The main part of the code, for calculating what to play.
+First it looks at the state of the game i.e. how many cards the CPU has,
+how many cards there are on the table, how many points the CPU has,
+and the most complicated part, which combinations the cards can make and
+the logic for claiming cards.
+
+Btw, the code only accounts for a game of two players, so the CPU and another player.
+It needs to know when its turn starts and what has happened in the board
+"""
+class KrypKasinoCPU:
     def __init__(self, hand, table):
         self.hand = hand  # List of cards in the hand of the CPU (list of Card objects)
         self.table = table  # List of cards on the table
@@ -212,7 +220,7 @@ class KrypKasinoAlgorithm:
             simulate_hand = copy.deepcopy(self.hand)
             simulate_table = copy.deepcopy(self.table)
 
-            # For every card from the hand check if
+            # For every card from the hand check if the card thats going to be simulated is the same as the one in the actual hand (i think that was it)
             for i, card in enumerate(simulate_hand.cards):
                 if card.rank == playcard.rank and card.suit == playcard.suit:
                     del simulate_hand.cards[i]
@@ -227,7 +235,7 @@ class KrypKasinoAlgorithm:
             # Go through all combinations and choose the best
             for combination in combo_index:
                 
-                # Remove the claimed cards.
+                # Remove the claimed cards from the table.
                 for claimed_card in combination:
                     for i, table_card in enumerate(simulate_table.cards):
                         if table_card.rank == claimed_card.rank and table_card.suit == claimed_card.suit:
@@ -238,12 +246,15 @@ class KrypKasinoAlgorithm:
             print(f"Algorithm's hand after the play: {simulate_hand}")
             print()
 
-
+        # This part is unfinished, and i can't remember why i wrote this
+        # This is probably something to compare which card would get you the least points and thus be the best card (?)
         for i in range(len(hand)):
             cardcombos.wombo_combo_point
             
         return best_play
     
+    # Used excel to find out how much each card would be worth if it was claimed.
+    # The code doesn't take into account future plays. I guess you could say it lives in the present.
     def cardpoints(self):
         cardpoint = {
         "AS": 1.173076923,
@@ -302,6 +313,7 @@ class KrypKasinoAlgorithm:
 
         return cardpoint.get(self, "CARD DOES NOT EGGSIST")
 
+    # Maybe you can find a use for this code?
     # def play_card(self, card, claimed_cards=None):
     #     # Play the card first
     #     self.table.add_card(str(card))  # Add the card to the table
@@ -316,6 +328,7 @@ class KrypKasinoAlgorithm:
     #         print(f"CPU claims no cards.")
 
 class Game:
+    # Remember to edit the number of players accordingly! Or do some magic
     def __init__(self, num_players=2):
         self.num_players = num_players  # How many players are in the game
         self.turn = 0  # To track which player's turn it is (0 for Player 1, 1 for Player 2)
@@ -334,11 +347,12 @@ class Game:
         
         if self.current_player == "CPU":
             # Call the CPU's decision-making function here
-            CPU = KrypKasinoAlgorithm(self.hand, self.table)
+            CPU = KrypKasinoCPU(self.hand, self.table)
             CPU.decision()
 
         else:
             # Handle human player's move (get input, etc.)
+            # This is for only a player 2
             print("Player 2's turn: Input move manually")
         
         # After each turn, switch to the next player
@@ -353,12 +367,12 @@ class Game:
         print(f"Waiting for {self.current_player} to make a move...")
         
         while True:
-            time.sleep(2)  # Check every two seconds
+            time.sleep(2)  # Check every two seconds if a move has been made
             
             # Check the current number of cards on the table
             current_table_card_count = len(self.table.cards)
             
-            # If the number of cards on the table has increased, Player 1 has played a card
+            # If the number of cards on the table has increased or decreased, Player 2 has played a card
             if current_table_card_count != initial_table_card_count:
                 print(f"{self.current_player} has played a card!")
                 break  # Exit the loop to switch turns
@@ -401,13 +415,13 @@ def cardcombos(card, table_cards, CPU_instance):
 hand = Hand() # CPU's hand 
 table = Table() # cards on the table
 
-# This is a testing code to be used as a temporary input
-# This is a dummy hand. There will be a maximum of four cards in the hand
+# This is a testing code to be used as a temporary input. In the future, it will use the code originally written by B.Stokke which uses OpenCV
+# These are examples of the hand. There will be a maximum of four cards in the hand
 # hand.add_card(["7S", "4H", "8C", "AH"])
-hand.add_card(["7D", "5S", "2D"])
-# This is a dummy table
+# hand.add_card(["7D", "5S", "2D"])
+# These are examples of table layouts
 # table.add_card(["7D", "8H", "7H", "5S"])
-table.add_card(["7H","8H"])
+# table.add_card(["7H","8H"])
 
 
 # Now, set the location for all cards after they are added
@@ -422,6 +436,6 @@ print("Algorithm hand: ", str(hand))  # This will use Hand.__str__, which calls 
 #     print(f"{card}: Value = {card.get_value()}")
 
 # Initialize CPU and make a decision
-algorithm = KrypKasinoAlgorithm(hand, table)
+algorithm = KrypKasinoCPU(hand, table)
 # Call best_move() to get the best card
 best_card = algorithm.best_move()
