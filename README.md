@@ -10,7 +10,7 @@ Kartlegging:
 Utstyr og ressurser:
 
 Utstyr: 
- - UR-robot (UR5/UR3)
+ - UR-robot (UR5)
  - sugekopp til UR
  -  USB-kamera,
  -  Kortstokk (52 kort)
