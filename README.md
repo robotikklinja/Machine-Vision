@@ -23,8 +23,8 @@ Ressurser:
 ### Forkunnskap/Læring før utvikling av prosjektet:
 1. Lære/Kunne python
 2. Lære/Kunne det basics av OpenCV.
-   	Link til en YouTube som kan hjelpe fra freeCodeCamp for OpenCV:
-        https://www.youtube.com/watch?v=oXlwWbU8l2o&t=6303s
+   	Link til en YouTube som kan hjelpe fra freeCodeCamp for OpenCV: 
+        	https://www.youtube.com/watch?v=oXlwWbU8l2o&t=6303s
    	- Trenger ikke å gå gjennom alt, 1 t 50 min er mer enn nok. :)
 3. Lære/Kunne modbus (via python)
 
