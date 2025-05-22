@@ -30,22 +30,23 @@ Ressurser:
 
 ### Utføring:
 
-1. Lag en kode som kan gjenkjenne kortene (se etter firkanter).
-   Bruk dette til å isolere kortene i 2D (flat), eget bilde for eget kort.
+1. Lag en kode som kan gjenkjenne kort (firkanter).
+   Bruk dette til å isolere kortene i 2D (flat), eget bilde for eget kort ikke flere kort på et bilde.
    Dette blir gjort gjennom en for loop for vær av kortene.
-   Dette bilde går gjennom en AI som gjenkjenner kortet (1 av 52).
+   Bilde går gjennom en AI som gjenkjenner kortet til 1 av 52.
    	Vis du har en kvantedatamaskin skal det skalere bedre (lignene på Grovers algoritme).
    
-2. Bruk gjenkjenningen av kort til å lagre informasjon til å fine ut hva som er best å gjøre (utføre i praksis).
-   	Det roboten gjør kan forandre seg fra program til program på UR-en,
+2. Bruk gjenkjenningen av kortet/kortene til å lagre informasjon til å fine ut hva som er best å gjøre (utføre i praksis).
+   	Det roboten gjør kan forandre seg fra program til program på UR-en og på PC-en,
    	men informasjonen ut fra PC-en er lignene, kan gjøre justeringer vis nødvendig*.
 
-4. Få UR-en til å spille kort*, så lenge det er noe praksis.
-5. Kombinere Kort-koden og Modbus koden.
+3. Få UR-en til å spille kort*, så lenge det er noe praksis.
+
+4. Kombinere Kort-koden og Modbus koden.
    	Hvordan det blir gjort kan forandre seg.
    	Man kan velge* mellom å ha alt på en kode/file (denne valgte vi)
    	eller importere noen filer in i en annen kode til å utføre classer,funksjoner og AI der sammen.
-7. Legg til sikkerhet der det trengs.
+5. Legg til sikkerhet der det trengs.
    	Spørsmål som "Hva børe AI-en PC-koden ha murlighet til å gjøre?" er viktig.
    	Planen er å lage "actions" i et program på UR-en og forandringen av en variabel/kommunikasjonen
    	mellom PC og UR utfører/aktivere denne "action". Det kan være å plokke noe opp eller plassere noe et sted, osv.
